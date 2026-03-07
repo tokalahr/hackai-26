@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import { Navigation } from "./components/navigation";
 import { Footer } from "./components/footer";
 import { PersistentSidebar } from "./components/persistent-sidebar";
@@ -77,7 +78,17 @@ export default function App() {
       />
 
       <div className="relative z-10 container mx-auto max-w-7xl px-6 pt-28 pb-10">
-        <main>{content}</main>
+        <AnimatePresence mode="wait">
+          <motion.main
+            key={path}
+            initial={{ opacity: 0, y: 12, filter: "blur(2px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            exit={{ opacity: 0, y: -10, filter: "blur(1px)" }}
+            transition={{ duration: 0.28, ease: "easeOut" }}
+          >
+            {content}
+          </motion.main>
+        </AnimatePresence>
         <Footer onNavigate={navigate} />
       </div>
     </div>

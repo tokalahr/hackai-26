@@ -27,29 +27,38 @@ export function Navigation({ currentPath, onNavigate, onOpenSidebar }: Navigatio
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <button
+            <motion.button
               onClick={onOpenSidebar}
+              whileHover={{ scale: 1.06 }}
+              whileTap={{ scale: 0.94 }}
               className="w-10 h-10 bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg flex items-center justify-center hover:bg-white/10 transition-all"
               aria-label="Open sidebar"
             >
               <Menu className="w-5 h-5 text-white" />
-            </button>
+            </motion.button>
 
             {/* Logo */}
-            <button onClick={() => onNavigate("/")} className="flex items-center gap-2">
+            <motion.button
+              onClick={() => onNavigate("/")}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="flex items-center gap-2"
+            >
               <div className="w-10 h-10 bg-gradient-to-br from-[#F58025] to-[#00A8A8] rounded-xl flex items-center justify-center shadow-lg shadow-[#F58025]/30">
                 <Sparkles className="w-6 h-6 text-white" />
               </div>
               <span className="text-xl font-bold text-white">UniLearn</span>
-            </button>
+            </motion.button>
           </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
             {navItems.map((item) => (
-              <button
+              <motion.button
                 key={item.name}
                 onClick={() => onNavigate(item.href)}
+                whileHover={{ y: -2 }}
+                whileTap={{ scale: 0.97 }}
                 className={`transition-colors ${
                   currentPath === item.href
                     ? "text-white"
@@ -57,27 +66,30 @@ export function Navigation({ currentPath, onNavigate, onOpenSidebar }: Navigatio
                 }`}
               >
                 {item.name}
-              </button>
+              </motion.button>
             ))}
           </div>
 
           {/* CTA Buttons */}
           <div className="hidden md:flex items-center gap-3">
-            <button
+            <motion.button
               onClick={() => onNavigate("/dashboard")}
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.97 }}
               className="px-5 py-2 bg-gradient-to-r from-[#F58025] to-[#ff9447] rounded-lg font-semibold text-white hover:shadow-lg hover:shadow-[#F58025]/50 transition-all"
             >
               Open Dashboard
-            </button>
+            </motion.button>
           </div>
 
           {/* Mobile Menu Button */}
-          <button
+          <motion.button
             onClick={() => setIsOpen(!isOpen)}
+            whileTap={{ scale: 0.93 }}
             className="md:hidden w-10 h-10 bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg flex items-center justify-center hover:bg-white/10 transition-all"
           >
             <Menu className="w-5 h-5 text-white" />
-          </button>
+          </motion.button>
         </div>
 
         {/* Mobile Menu */}
@@ -90,12 +102,13 @@ export function Navigation({ currentPath, onNavigate, onOpenSidebar }: Navigatio
           >
             <div className="flex flex-col gap-2">
               {navItems.map((item) => (
-                <button
+                <motion.button
                   key={item.name}
                   onClick={() => {
                     onNavigate(item.href);
                     setIsOpen(false);
                   }}
+                  whileTap={{ scale: 0.98 }}
                   className={`px-4 py-2 text-left rounded-lg transition-all ${
                     currentPath === item.href
                       ? "text-white bg-white/10"
@@ -103,27 +116,29 @@ export function Navigation({ currentPath, onNavigate, onOpenSidebar }: Navigatio
                   }`}
                 >
                   {item.name}
-                </button>
+                </motion.button>
               ))}
               <div className="flex flex-col gap-2 pt-2 mt-2 border-t border-white/10">
-                <button
+                <motion.button
                   onClick={() => {
                     onOpenSidebar();
                     setIsOpen(false);
                   }}
+                  whileTap={{ scale: 0.98 }}
                   className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg font-medium text-white text-left"
                 >
                   Menu
-                </button>
-                <button
+                </motion.button>
+                <motion.button
                   onClick={() => {
                     onNavigate("/dashboard");
                     setIsOpen(false);
                   }}
+                  whileTap={{ scale: 0.98 }}
                   className="px-4 py-2 bg-gradient-to-r from-[#F58025] to-[#ff9447] rounded-lg font-semibold text-white"
                 >
                   Open Dashboard
-                </button>
+                </motion.button>
               </div>
             </div>
           </motion.div>

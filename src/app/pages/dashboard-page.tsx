@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 const campusEvents = [
   {
@@ -99,9 +99,304 @@ function buildRecommendation(input: RecommendationInput): RecommendationResult {
   };
 }
 
+type CampusEventPin = {
+  id: number;
+  title: string;
+  description: string;
+  location: string;
+  likes: number;
+  x: number;
+  y: number;
+};
+
+type Cluster = {
+  id: string;
+  x: number;
+  y: number;
+  pins: CampusEventPin[];
+};
+
+const initialPinnedEvents: CampusEventPin[] = [
+  {
+    id: 1001,
+    title: "HackAI Kickoff",
+    description: "Opening session for teams to meet, scope ideas, and align on tracks.",
+    location: "ECSW Atrium",
+    likes: 24,
+    x: 46,
+    y: 52,
+  },
+  {
+    id: 1002,
+    title: "Resume Clinic",
+    description: "Career center mentors review resumes and LinkedIn profiles.",
+    location: "Student Services Building",
+    likes: 15,
+    x: 58,
+    y: 47,
+  },
+  {
+    id: 1003,
+    title: "Night Coding Sprint",
+    description: "Late-night co-working session with mentors and snacks.",
+    location: "Founders Lab",
+    likes: 39,
+    x: 48,
+    y: 56,
+  },
+  {
+    id: 1004,
+    title: "AI Ethics Circle",
+    description: "Roundtable on fairness, safety, and responsible deployment.",
+    location: "Library Room B",
+    likes: 11,
+    x: 32,
+    y: 35,
+  },
+];
+
+function clusterPins(pins: CampusEventPin[], threshold = 7): Cluster[] {
+  const clusters: Cluster[] = [];
+
+  for (const pin of pins) {
+    let placed = false;
+    for (const cluster of clusters) {
+      const dx = cluster.x - pin.x;
+      const dy = cluster.y - pin.y;
+      if (Math.hypot(dx, dy) <= threshold) {
+        cluster.pins.push(pin);
+        cluster.x = cluster.pins.reduce((sum, p) => sum + p.x, 0) / cluster.pins.length;
+        cluster.y = cluster.pins.reduce((sum, p) => sum + p.y, 0) / cluster.pins.length;
+        placed = true;
+        break;
+      }
+    }
+
+    if (!placed) {
+      clusters.push({ id: `cluster-${pin.id}`, x: pin.x, y: pin.y, pins: [pin] });
+    }
+  }
+
+  return clusters.map((cluster) => ({
+    ...cluster,
+    id: `cluster-${cluster.pins.map((p) => p.id).sort((a, b) => a - b).join("-")}`,
+  }));
+}
+
+function CampusEventMap() {
+  const mapRef = useRef<HTMLDivElement | null>(null);
+  const [pins, setPins] = useState<CampusEventPin[]>(initialPinnedEvents);
+  const [selectedEvent, setSelectedEvent] = useState<CampusEventPin | null>(null);
+  const [hoveredPinId, setHoveredPinId] = useState<number | null>(null);
+  const [hoveredClusterId, setHoveredClusterId] = useState<string | null>(null);
+  const [openClusterId, setOpenClusterId] = useState<string | null>(null);
+
+  const [draftPos, setDraftPos] = useState<{ x: number; y: number } | null>(null);
+  const [draftTitle, setDraftTitle] = useState("");
+  const [draftDescription, setDraftDescription] = useState("");
+  const [draftLocation, setDraftLocation] = useState("");
+
+  const clusters = useMemo(() => clusterPins(pins), [pins]);
+
+  const handleMapClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    const map = mapRef.current;
+    if (!map) return;
+    const rect = map.getBoundingClientRect();
+    const x = ((event.clientX - rect.left) / rect.width) * 100;
+    const y = ((event.clientY - rect.top) / rect.height) * 100;
+    setDraftPos({ x: Math.max(2, Math.min(98, x)), y: Math.max(2, Math.min(98, y)) });
+    setDraftTitle("");
+    setDraftDescription("");
+    setDraftLocation("");
+  };
+
+  const addEventPin = () => {
+    if (!draftPos || !draftTitle.trim()) return;
+    const newPin: CampusEventPin = {
+      id: Date.now(),
+      title: draftTitle.trim(),
+      description: draftDescription.trim() || "No description provided yet.",
+      location: draftLocation.trim() || "Location placeholder (API later)",
+      likes: Math.floor(Math.random() * 20),
+      x: draftPos.x,
+      y: draftPos.y,
+    };
+    setPins((prev) => [newPin, ...prev]);
+    setDraftPos(null);
+    setSelectedEvent(newPin);
+  };
+
+  return (
+    <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-5">
+      <div className="flex items-center justify-between gap-4 mb-4">
+        <h2 className="text-xl font-semibold text-white">Interactive Campus Event Map</h2>
+        <a
+          href="https://map.utdallas.edu/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-sm text-[#7bf0f0] hover:underline"
+        >
+          Open official map
+        </a>
+      </div>
+
+      <div className="rounded-xl overflow-hidden border border-white/10 bg-black/30">
+        <div
+          ref={mapRef}
+          onClick={handleMapClick}
+          className="relative w-full h-[430px] cursor-crosshair overflow-hidden"
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-[#101419] via-[#182028] to-[#101419]" />
+          <div className="absolute inset-0 opacity-40 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:44px_44px]" />
+          <div className="absolute left-[8%] top-[15%] w-[84%] h-[3px] bg-[#00A8A8]/45 rotate-[6deg]" />
+          <div className="absolute left-[18%] top-[68%] w-[62%] h-[3px] bg-[#F58025]/45 -rotate-[10deg]" />
+          <div className="absolute left-[24%] top-[20%] w-[4px] h-[62%] bg-white/20" />
+
+          {clusters.map((cluster) => {
+            const isGroup = cluster.pins.length > 1;
+            const showList = hoveredClusterId === cluster.id || openClusterId === cluster.id;
+
+            if (!isGroup) {
+              const pin = cluster.pins[0];
+              const isHovered = hoveredPinId === pin.id;
+
+              return (
+                <button
+                  key={pin.id}
+                  style={{ left: `${pin.x}%`, top: `${pin.y}%` }}
+                  className="absolute -translate-x-1/2 -translate-y-1/2"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setSelectedEvent(pin);
+                  }}
+                  onMouseEnter={() => setHoveredPinId(pin.id)}
+                  onMouseLeave={() => setHoveredPinId(null)}
+                >
+                  <span className="block w-4 h-4 rounded-full bg-[#F58025] ring-4 ring-[#F58025]/25 shadow-lg" />
+                  {isHovered && (
+                    <span className="absolute left-1/2 -translate-x-1/2 -top-8 whitespace-nowrap rounded-md px-2 py-1 text-xs text-white bg-black/80 border border-white/10">
+                      {pin.title}
+                    </span>
+                  )}
+                </button>
+              );
+            }
+
+            return (
+              <div
+                key={cluster.id}
+                style={{ left: `${cluster.x}%`, top: `${cluster.y}%` }}
+                className="absolute -translate-x-1/2 -translate-y-1/2"
+                onMouseEnter={() => setHoveredClusterId(cluster.id)}
+                onMouseLeave={() => setHoveredClusterId(null)}
+              >
+                <button
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setOpenClusterId((prev) => (prev === cluster.id ? null : cluster.id));
+                  }}
+                  className="w-8 h-8 rounded-full bg-[#00A8A8] text-black font-bold text-xs ring-4 ring-[#00A8A8]/25 shadow-lg"
+                  title={`${cluster.pins.length} nearby events`}
+                >
+                  {cluster.pins.length}
+                </button>
+
+                {showList && (
+                  <div className="absolute z-20 left-1/2 -translate-x-1/2 top-10 w-60 rounded-xl border border-white/10 bg-[#0f1116]/95 backdrop-blur-xl p-2">
+                    <p className="text-xs text-gray-400 px-2 pb-1">Nearby events</p>
+                    <ul className="max-h-40 overflow-y-auto space-y-1 pr-1">
+                      {cluster.pins.map((pin) => (
+                        <li key={pin.id}>
+                          <button
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              setSelectedEvent(pin);
+                              setOpenClusterId(null);
+                            }}
+                            className="w-full text-left text-sm rounded-lg px-2 py-1.5 text-gray-200 hover:bg-white/10"
+                          >
+                            {pin.title}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+
+          {draftPos && (
+            <div
+              style={{ left: `${draftPos.x}%`, top: `${draftPos.y}%` }}
+              className="absolute -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+            >
+              <span className="block w-4 h-4 rounded-full bg-[#A259FF] ring-4 ring-[#A259FF]/25 shadow-lg animate-pulse" />
+            </div>
+          )}
+        </div>
+      </div>
+
+      <p className="text-xs text-gray-500 mt-3">
+        Click anywhere on the map box to add an event pin. Hover pins for titles. Nearby pins auto-cluster.
+      </p>
+
+      {draftPos && (
+        <div className="mt-4 rounded-xl border border-white/10 bg-white/5 p-4 space-y-3">
+          <p className="text-sm text-gray-300 font-medium">Create Event at Selected Pin</p>
+          <input
+            value={draftTitle}
+            onChange={(event) => setDraftTitle(event.target.value)}
+            placeholder="Event title"
+            className="w-full rounded-lg bg-black/25 border border-white/15 px-3 py-2 text-sm text-white placeholder:text-gray-500"
+          />
+          <textarea
+            value={draftDescription}
+            onChange={(event) => setDraftDescription(event.target.value)}
+            rows={2}
+            placeholder="Event description"
+            className="w-full rounded-lg bg-black/25 border border-white/15 px-3 py-2 text-sm text-white placeholder:text-gray-500"
+          />
+          <input
+            value={draftLocation}
+            onChange={(event) => setDraftLocation(event.target.value)}
+            placeholder="Location (placeholder for API)"
+            className="w-full rounded-lg bg-black/25 border border-white/15 px-3 py-2 text-sm text-white placeholder:text-gray-500"
+          />
+          <div className="flex gap-2">
+            <button
+              onClick={addEventPin}
+              className="rounded-lg px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-[#F58025] to-[#ff9447]"
+            >
+              Add Pin
+            </button>
+            <button
+              onClick={() => setDraftPos(null)}
+              className="rounded-lg px-4 py-2 text-sm text-gray-300 border border-white/15 hover:bg-white/10"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {selectedEvent && (
+        <div className="mt-4 rounded-xl border border-white/10 bg-white/5 p-4 space-y-2">
+          <p className="text-lg font-semibold text-white">{selectedEvent.title}</p>
+          <p className="text-sm text-gray-300">{selectedEvent.description}</p>
+          <p className="text-sm text-[#7bf0f0]">Location: {selectedEvent.location}</p>
+          <p className="text-sm text-gray-400">Likes: {selectedEvent.likes}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function CampusPanel() {
   return (
     <div className="space-y-6">
+      <CampusEventMap />
+
       <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-5">
         <h2 className="text-xl font-semibold text-white mb-4">Upcoming Campus Events</h2>
         <ul className="space-y-3">

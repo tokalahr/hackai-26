@@ -5,16 +5,16 @@ import { useState } from "react";
 type NavigationProps = {
   currentPath: string;
   onNavigate: (path: string) => void;
+  onOpenSidebar: () => void;
 };
 
-export function Navigation({ currentPath, onNavigate }: NavigationProps) {
+export function Navigation({ currentPath, onNavigate, onOpenSidebar }: NavigationProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const navItems = [
     { name: "Home", href: "/" },
     { name: "Dashboard", href: "/dashboard" },
     { name: "About", href: "/about" },
-    { name: "Login", href: "/login" },
   ];
 
   return (
@@ -26,12 +26,22 @@ export function Navigation({ currentPath, onNavigate }: NavigationProps) {
     >
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
-          {/* Logo */}
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-[#F58025] to-[#00A8A8] rounded-xl flex items-center justify-center shadow-lg shadow-[#F58025]/30">
-              <Sparkles className="w-6 h-6 text-white" />
-            </div>
-            <span className="text-xl font-bold text-white">UniLearn</span>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={onOpenSidebar}
+              className="w-10 h-10 bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg flex items-center justify-center hover:bg-white/10 transition-all"
+              aria-label="Open sidebar"
+            >
+              <Menu className="w-5 h-5 text-white" />
+            </button>
+
+            {/* Logo */}
+            <button onClick={() => onNavigate("/")} className="flex items-center gap-2">
+              <div className="w-10 h-10 bg-gradient-to-br from-[#F58025] to-[#00A8A8] rounded-xl flex items-center justify-center shadow-lg shadow-[#F58025]/30">
+                <Sparkles className="w-6 h-6 text-white" />
+              </div>
+              <span className="text-xl font-bold text-white">UniLearn</span>
+            </button>
           </div>
 
           {/* Desktop Navigation */}
@@ -52,7 +62,7 @@ export function Navigation({ currentPath, onNavigate }: NavigationProps) {
           </div>
 
           {/* CTA Buttons */}
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-3">
             <button
               onClick={() => onNavigate("/dashboard")}
               className="px-5 py-2 bg-gradient-to-r from-[#F58025] to-[#ff9447] rounded-lg font-semibold text-white hover:shadow-lg hover:shadow-[#F58025]/50 transition-all"
@@ -96,6 +106,15 @@ export function Navigation({ currentPath, onNavigate }: NavigationProps) {
                 </button>
               ))}
               <div className="flex flex-col gap-2 pt-2 mt-2 border-t border-white/10">
+                <button
+                  onClick={() => {
+                    onOpenSidebar();
+                    setIsOpen(false);
+                  }}
+                  className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg font-medium text-white text-left"
+                >
+                  Menu
+                </button>
                 <button
                   onClick={() => {
                     onNavigate("/dashboard");

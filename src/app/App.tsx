@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { Navigation } from "./components/navigation";
 import { Footer } from "./components/footer";
+import { PersistentSidebar } from "./components/persistent-sidebar";
 import { HomePage } from "./pages/home-page";
 import { DashboardPage } from "./pages/dashboard-page";
 import { AboutPage } from "./pages/about-page";
-import { LoginPage } from "./pages/login-page";
 
 export default function App() {
   const [path, setPath] = useState(() => window.location.pathname || "/");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     const onPopState = () => setPath(window.location.pathname || "/");
@@ -24,11 +25,16 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  useEffect(() => {
+    setIsSidebarOpen(false);
+  }, [path]);
+
   const content = useMemo(() => {
     if (path === "/") return <HomePage onNavigate={navigate} />;
-    if (path === "/dashboard") return <DashboardPage />;
+    if (path === "/dashboard" || path === "/learning-assistant") {
+      return <DashboardPage activePath={path} />;
+    }
     if (path === "/about") return <AboutPage />;
-    if (path === "/login") return <LoginPage />;
 
     return (
       <section className="relative min-h-[70vh] pt-32 pb-16 px-6">
@@ -49,9 +55,23 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#0D0D0F] text-white dark">
-      <Navigation currentPath={path} onNavigate={navigate} />
-      <main>{content}</main>
-      <Footer onNavigate={navigate} />
+      <Navigation
+        currentPath={path}
+        onNavigate={navigate}
+        onOpenSidebar={() => setIsSidebarOpen(true)}
+      />
+
+      <PersistentSidebar
+        currentPath={path}
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+        onNavigate={navigate}
+      />
+
+      <div className="relative z-10 container mx-auto max-w-7xl px-6 pt-28 pb-10">
+        <main>{content}</main>
+        <Footer onNavigate={navigate} />
+      </div>
     </div>
   );
 }

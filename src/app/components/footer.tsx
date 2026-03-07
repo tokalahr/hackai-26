@@ -9,7 +9,6 @@ export function Footer({ onNavigate }: FooterProps) {
     { name: "Home", href: "/" },
     { name: "Dashboard", href: "/dashboard" },
     { name: "About", href: "/about" },
-    { name: "Login", href: "/login" },
   ];
 
   return (

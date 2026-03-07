@@ -85,26 +85,6 @@ export function HeroSection({ onNavigate }: HeroSectionProps) {
               </button>
             </motion.div>
 
-            {/* Stats */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-              className="flex gap-8 pt-8"
-            >
-              <div>
-                <div className="text-3xl font-bold text-[#00A8A8]">10K+</div>
-                <div className="text-sm text-gray-500">Learners Supported</div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold text-[#A259FF]">500+</div>
-                <div className="text-sm text-gray-500">Courses Indexed</div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold text-[#F58025]">98%</div>
-                <div className="text-sm text-gray-500">Satisfaction</div>
-              </div>
-            </motion.div>
           </motion.div>
 
           {/* Right - Dashboard Preview */}

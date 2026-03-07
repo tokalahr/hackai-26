@@ -1,75 +1,57 @@
-# UniLearn — HackAI 26
+# HackAI 26
 
-University events/courses platform + AI-powered personalised learning recommendations.
+Modern React + Vite single-page app for the HackAI 26 project.
 
-## Stack
+## Tech Stack
 
-| Layer | Tech |
-|---|---|
-| Frontend | React 19, Vite 7, Tailwind CSS v4, React Router v7 |
-| Backend | FastAPI, Uvicorn, Python 3.11+ |
+- React (TypeScript)
+- Vite
+- Tailwind CSS v4
+- Radix UI + MUI + assorted UI utility libraries
 
 ## Project Structure
 
 ```
 hackai-26/
-├── frontend/               # React + Vite + Tailwind
-│   └── src/
-│       ├── components/     # Navbar, Layout
-│       └── pages/          # Home, Dashboard, About, Login
-└── backend/
-    ├── app/
-    │   ├── main.py         # FastAPI app + CORS
-    │   └── routers/        # health, courses, events, users, recommendations
-    └── requirements.txt
+├── src/
+│   ├── app/
+│   │   ├── App.tsx
+│   │   └── components/
+│   ├── styles/
+│   └── main.tsx
+├── index.html
+├── package.json
+└── vite.config.ts
 ```
+
+## Prerequisites
+
+- Node.js 20+
+- npm 10+
 
 ## Getting Started
 
-### Backend
-
 ```bash
-cd backend
-python -m venv .venv
-# Windows:
-.venv\Scripts\pip install -r requirements.txt
-.venv\Scripts\uvicorn app.main:app --reload
-# Mac/Linux:
-# source .venv/bin/activate && pip install -r requirements.txt && uvicorn app.main:app --reload
-```
-
-API docs available at **http://localhost:8000/docs**
-
-### Frontend
-
-```bash
-cd frontend
 npm install
 npm run dev
 ```
 
-App available at **http://localhost:5173**
+App runs at `http://localhost:5173` by default.
 
-> The Vite dev server proxies `/api/*` → `http://localhost:8000` — no CORS config needed in dev.
+## Available Scripts
 
-## API Routes
+- `npm run dev` - Start local development server
+- `npm run build` - Build production bundle
 
-| Method | Path | Description |
-|---|---|---|
-| GET | `/api/health` | Health check |
-| GET | `/api/courses` | List all courses |
-| GET | `/api/courses/{id}` | Get course by ID |
-| GET | `/api/events` | List campus events (name, date, location) |
-| GET | `/api/events/{id}` | Get event by ID |
-| GET | `/api/users/{id}` | Get user by ID |
-| POST | `/api/users` | Create user |
-| POST | `/api/recommendations` | Generate learning recommendations |
+## Build Validation
 
-## Pages
+```bash
+npm run build
+```
 
-| Route | Page | Description |
-|---|---|---|
-| `/` | Home | Hero landing page |
-| `/dashboard` | Dashboard | Campus panel + Learning tool side-by-side |
-| `/about` | About | Project description |
-| `/login` | Login | Sign-in form (UI stub) |
+If build completes without errors, the project is in a runnable state.
+
+## Notes
+
+- This repository is currently frontend-only.
+- If you plan to add a backend, create a separate service folder (for example `backend/`) and document its setup here.

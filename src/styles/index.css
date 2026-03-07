@@ -1,3 +1,43 @@
 @import './fonts.css';
 @import './tailwind.css';
 @import './theme.css';
+
+html,
+body,
+#root {
+	min-height: 100%;
+}
+
+body {
+	margin: 0;
+	overflow-x: hidden;
+}
+
+/* Fixed background layer so only backdrop animates, not page content. */
+.animated-site-bg {
+	position: fixed;
+	inset: -14%;
+	z-index: 0;
+	pointer-events: none;
+	background:
+		radial-gradient(circle at 12% 22%, rgba(245, 128, 37, 0.2), transparent 40%),
+		radial-gradient(circle at 82% 18%, rgba(0, 168, 168, 0.18), transparent 44%),
+		radial-gradient(circle at 68% 80%, rgba(162, 89, 255, 0.16), transparent 44%),
+		linear-gradient(130deg, #0d0d0f 0%, #121824 50%, #0d0d0f 100%);
+	background-size: 180% 180%, 170% 170%, 190% 190%, 100% 100%;
+	animation: siteBgDrift 20s ease-in-out infinite alternate;
+	will-change: transform, background-position;
+}
+
+@keyframes siteBgDrift {
+	0% {
+		transform: translate3d(0%, 0%, 0) scale(1);
+		background-position: 0% 0%, 100% 0%, 50% 100%, 0% 0%;
+	}
+
+	100% {
+		transform: translate3d(2%, -2%, 0) scale(1.04);
+		background-position: 30% 20%, 70% 24%, 60% 74%, 0% 0%;
+	}
+}
+

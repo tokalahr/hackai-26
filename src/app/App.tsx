@@ -54,7 +54,9 @@ export default function App() {
   }, [path]);
 
   return (
-    <div className="min-h-screen bg-[#0D0D0F] text-white dark">
+    <div className="relative min-h-screen bg-[#0D0D0F] text-white dark overflow-hidden">
+      <div className="animated-site-bg" aria-hidden="true" />
+
       <Navigation
         currentPath={path}
         onNavigate={navigate}

@@ -11,6 +11,8 @@ const navItems = [
   { label: "Home", path: "/" },
   { label: "Campus", path: "/dashboard" },
   { label: "Learning Assistant", path: "/learning-assistant" },
+  { label: "Student Recommendations", path: "/student-recommendations" },
+  { label: "Professional Recommendations", path: "/professional-recommendations" },
   { label: "About", path: "/about" },
 ];
 

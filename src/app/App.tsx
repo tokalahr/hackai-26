@@ -5,6 +5,8 @@ import { PersistentSidebar } from "./components/persistent-sidebar";
 import { HomePage } from "./pages/home-page";
 import { DashboardPage } from "./pages/dashboard-page";
 import { AboutPage } from "./pages/about-page";
+import { StudentRecommendationsPage } from "./pages/student-recommendations-page";
+import { ProfessionalRecommendationsPage } from "./pages/professional-recommendations-page";
 
 export default function App() {
   const [path, setPath] = useState(() => window.location.pathname || "/");
@@ -32,9 +34,15 @@ export default function App() {
   const content = useMemo(() => {
     if (path === "/") return <HomePage onNavigate={navigate} />;
     if (path === "/dashboard" || path === "/learning-assistant") {
-      return <DashboardPage activePath={path} />;
+      return <DashboardPage activePath={path} onNavigate={navigate} />;
     }
     if (path === "/about") return <AboutPage />;
+    if (path === "/student-recommendations") {
+      return <StudentRecommendationsPage onNavigate={navigate} />;
+    }
+    if (path === "/professional-recommendations") {
+      return <ProfessionalRecommendationsPage onNavigate={navigate} />;
+    }
 
     return (
       <section className="relative min-h-[70vh] pt-32 pb-16 px-6">

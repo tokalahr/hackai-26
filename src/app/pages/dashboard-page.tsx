@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { saveLearningInput, type LearnerRole } from "./recommendation-utils";
 
 const campusEvents = [
   {
@@ -44,60 +45,15 @@ type RecommendationInput = {
   topic: string;
   level: string;
   background: string;
-};
-
-type RecommendationResult = {
-  learner: string;
-  topic: string;
-  nextSteps: string[];
-  keyConcepts: string[];
-  practiceScenario: string;
-  externalSources: Array<{ title: string; snippet: string }>;
+  role: LearnerRole;
 };
 
 type DashboardSection = "campus" | "learning";
 
 type DashboardPageProps = {
   activePath: string;
+  onNavigate: (path: string) => void;
 };
-
-function buildRecommendation(input: RecommendationInput): RecommendationResult {
-  const topic = input.topic.trim() || "your selected topic";
-
-  return {
-    learner: input.name || "Learner",
-    topic,
-    nextSteps: [
-      `Revisit fundamentals in ${topic} at your current level: ${input.level || "beginner"}.`,
-      `Complete one hands-on mini project in ${topic} that matches your background.`,
-      "Practice retrieval: summarize each session in 5 bullet points and one confusion question.",
-      "Schedule two spaced revision blocks this week for retention.",
-    ],
-    keyConcepts: [
-      "Foundations",
-      "Evaluation Metrics",
-      "Error Analysis",
-      "Transfer to Real Tasks",
-    ],
-    practiceScenario:
-      `You are mentoring a junior teammate who must apply ${topic} to solve a real workplace problem. ` +
-      "Design a simple plan: objective, data/input assumptions, approach, and success criteria.",
-    externalSources: [
-      {
-        title: "YouTube: 3Blue1Brown (Neural Networks)",
-        snippet: "Watch chapters explaining gradients and backprop; pause to sketch each concept.",
-      },
-      {
-        title: "fast.ai Practical Deep Learning",
-        snippet: "Use lesson notebooks to connect intuition with implementation quickly.",
-      },
-      {
-        title: "Andrej Karpathy walkthroughs",
-        snippet: "Follow from-scratch builds to understand what libraries abstract away.",
-      },
-    ],
-  };
-}
 
 function CampusPanel() {
   return (
@@ -130,19 +86,14 @@ function CampusPanel() {
   );
 }
 
-function LearningAssistantPanel() {
+function LearningAssistantPanel({ onNavigate }: { onNavigate: (path: string) => void }) {
   const [form, setForm] = useState<RecommendationInput>({
     name: "",
     topic: "",
     level: "",
     background: "",
+    role: "student",
   });
-  const [submitted, setSubmitted] = useState(false);
-
-  const recommendation = useMemo(
-    () => (submitted ? buildRecommendation(form) : null),
-    [submitted, form],
-  );
 
   return (
     <div className="space-y-6">
@@ -151,10 +102,33 @@ function LearningAssistantPanel() {
         <form
           onSubmit={(event) => {
             event.preventDefault();
-            setSubmitted(true);
+            saveLearningInput(form);
+            onNavigate(
+              form.role === "student"
+                ? "/student-recommendations"
+                : "/professional-recommendations",
+            );
           }}
           className="space-y-4"
         >
+          <div className="space-y-1">
+            <label className="text-sm text-gray-300">I am a</label>
+            <select
+              value={form.role}
+              onChange={(event) =>
+                setForm((prev) => ({ ...prev, role: event.target.value as LearnerRole }))
+              }
+              className="w-full rounded-xl bg-black/25 border border-white/15 px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-[#00A8A8]/70"
+            >
+              <option value="student" className="text-black">
+                Student
+              </option>
+              <option value="professional" className="text-black">
+                Professional
+              </option>
+            </select>
+          </div>
+
           <input
             value={form.name}
             onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
@@ -189,66 +163,15 @@ function LearningAssistantPanel() {
             type="submit"
             className="w-full rounded-xl px-4 py-3 font-semibold text-white bg-gradient-to-r from-[#F58025] to-[#ff9447] hover:shadow-lg hover:shadow-[#F58025]/40 transition-all"
           >
-            Generate Recommendations
+            Generate {form.role === "student" ? "Student" : "Professional"} Recommendations
           </button>
         </form>
       </div>
-
-      {recommendation && (
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-5 space-y-5">
-          <h3 className="text-xl font-semibold text-white">
-            Recommendations for {recommendation.learner}
-          </h3>
-          <p className="text-sm text-[#00d4d4]">Topic: {recommendation.topic}</p>
-
-          <div>
-            <p className="text-sm font-semibold text-gray-300 mb-2">Next steps</p>
-            <ul className="list-disc pl-5 text-sm text-gray-300 space-y-1">
-              {recommendation.nextSteps.map((step) => (
-                <li key={step}>{step}</li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <p className="text-sm font-semibold text-gray-300 mb-2">Key concepts</p>
-            <div className="flex flex-wrap gap-2">
-              {recommendation.keyConcepts.map((concept) => (
-                <span
-                  key={concept}
-                  className="px-3 py-1 rounded-full text-xs bg-[#00A8A8]/15 border border-[#00A8A8]/25 text-[#7bf0f0]"
-                >
-                  {concept}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <p className="text-sm font-semibold text-gray-300 mb-2">Practice scenario</p>
-            <p className="text-sm text-gray-300 bg-white/5 border border-white/10 rounded-xl p-3">
-              {recommendation.practiceScenario}
-            </p>
-          </div>
-
-          <div>
-            <p className="text-sm font-semibold text-gray-300 mb-2">External sources</p>
-            <ul className="space-y-2 text-sm text-gray-300">
-              {recommendation.externalSources.map((source) => (
-                <li key={source.title} className="rounded-xl bg-white/5 border border-white/10 p-3">
-                  <p className="font-medium text-white">{source.title}</p>
-                  <p className="text-gray-400">{source.snippet}</p>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
 
-export function DashboardPage({ activePath }: DashboardPageProps) {
+export function DashboardPage({ activePath, onNavigate }: DashboardPageProps) {
   const activeSection: DashboardSection =
     activePath === "/learning-assistant" ? "learning" : "campus";
 
@@ -266,7 +189,13 @@ export function DashboardPage({ activePath }: DashboardPageProps) {
           Campus data and learning guidance in one place. This demo version is fully frontend-only.
         </p>
 
-        <div>{activeSection === "campus" ? <CampusPanel /> : <LearningAssistantPanel />}</div>
+        <div>
+          {activeSection === "campus" ? (
+            <CampusPanel />
+          ) : (
+            <LearningAssistantPanel onNavigate={onNavigate} />
+          )}
+        </div>
       </div>
     </section>
   );

@@ -4,22 +4,22 @@ import { Plug, Brain, Zap } from "lucide-react";
 const steps = [
   {
     icon: Plug,
-    title: "Connect Nebula API",
-    description: "Seamlessly integrate with UT Dallas's comprehensive campus data including coursebook, profiles, and room scheduling.",
+    title: "Provide Learner Context",
+    description: "Share your current skill level, goals, and background so the system can adapt recommendations to your needs.",
     color: "#F58025",
     number: "01",
   },
   {
     icon: Brain,
-    title: "Analyze Learning Patterns",
-    description: "Our AI engine processes your academic history, preferences, and goals to understand your unique learning journey.",
+    title: "Analyze Signals",
+    description: "The app combines learner context with historical usage signals and campus learning data to identify high-value next steps.",
     color: "#00A8A8",
     number: "02",
   },
   {
     icon: Zap,
-    title: "Get Personalized Insights",
-    description: "Receive tailored course recommendations, study space suggestions, and peer connections that match your needs.",
+    title: "Get Actionable Recommendations",
+    description: "Receive clear next actions, key concepts, practice scenarios, and curated external resources you can apply immediately.",
     color: "#A259FF",
     number: "03",
   },

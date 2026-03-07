@@ -1,7 +1,11 @@
 import { motion } from "motion/react";
 import { Sparkles, Zap } from "lucide-react";
 
-export function HeroSection() {
+type HeroSectionProps = {
+  onNavigate: (path: string) => void;
+};
+
+export function HeroSection({ onNavigate }: HeroSectionProps) {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Gradient Background */}
@@ -33,7 +37,7 @@ export function HeroSection() {
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#F58025]/10 border border-[#F58025]/30"
             >
               <Sparkles className="w-4 h-4 text-[#F58025]" />
-              <span className="text-sm text-[#F58025]">Powered by Nebula Labs API</span>
+              <span className="text-sm text-[#F58025]">University + Learning Assistant</span>
             </motion.div>
 
             <motion.h1
@@ -57,7 +61,7 @@ export function HeroSection() {
               transition={{ delay: 0.4 }}
               className="text-xl text-gray-400 max-w-lg"
             >
-              A personalized academic and campus assistant powered by Nebula Labs API.
+              Explore campus events and courses, then generate personalized learning next steps with reasons.
             </motion.p>
 
             <motion.div
@@ -66,12 +70,18 @@ export function HeroSection() {
               transition={{ delay: 0.5 }}
               className="flex flex-wrap gap-4 pt-4"
             >
-              <button className="px-8 py-4 bg-gradient-to-r from-[#F58025] to-[#ff9447] rounded-xl font-semibold text-white hover:shadow-lg hover:shadow-[#F58025]/50 transition-all duration-300 transform hover:scale-105">
-                Try Demo
+              <button
+                onClick={() => onNavigate("/dashboard")}
+                className="px-8 py-4 bg-gradient-to-r from-[#F58025] to-[#ff9447] rounded-xl font-semibold text-white hover:shadow-lg hover:shadow-[#F58025]/50 transition-all duration-300 transform hover:scale-105"
+              >
+                Open Dashboard
               </button>
-              <button className="px-8 py-4 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl font-semibold text-white hover:bg-white/10 transition-all duration-300 flex items-center gap-2">
+              <button
+                onClick={() => onNavigate("/about")}
+                className="px-8 py-4 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl font-semibold text-white hover:bg-white/10 transition-all duration-300 flex items-center gap-2"
+              >
                 <Zap className="w-5 h-5" />
-                View API Tools
+                Learn More
               </button>
             </motion.div>
 
@@ -84,11 +94,11 @@ export function HeroSection() {
             >
               <div>
                 <div className="text-3xl font-bold text-[#00A8A8]">10K+</div>
-                <div className="text-sm text-gray-500">Active Students</div>
+                <div className="text-sm text-gray-500">Learners Supported</div>
               </div>
               <div>
                 <div className="text-3xl font-bold text-[#A259FF]">500+</div>
-                <div className="text-sm text-gray-500">Courses Tracked</div>
+                <div className="text-sm text-gray-500">Courses Indexed</div>
               </div>
               <div>
                 <div className="text-3xl font-bold text-[#F58025]">98%</div>

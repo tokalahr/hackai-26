@@ -2,14 +2,19 @@ import { motion } from "motion/react";
 import { Sparkles, Menu } from "lucide-react";
 import { useState } from "react";
 
-export function Navigation() {
+type NavigationProps = {
+  currentPath: string;
+  onNavigate: (path: string) => void;
+};
+
+export function Navigation({ currentPath, onNavigate }: NavigationProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const navItems = [
-    { name: "Features", href: "#features" },
-    { name: "How It Works", href: "#how-it-works" },
-    { name: "Docs", href: "#docs" },
-    { name: "Community", href: "#community" },
+    { name: "Home", href: "/" },
+    { name: "Dashboard", href: "/dashboard" },
+    { name: "About", href: "/about" },
+    { name: "Login", href: "/login" },
   ];
 
   return (
@@ -26,29 +31,33 @@ export function Navigation() {
             <div className="w-10 h-10 bg-gradient-to-br from-[#F58025] to-[#00A8A8] rounded-xl flex items-center justify-center shadow-lg shadow-[#F58025]/30">
               <Sparkles className="w-6 h-6 text-white" />
             </div>
-            <span className="text-xl font-bold text-white">Nebula Student</span>
+            <span className="text-xl font-bold text-white">UniLearn</span>
           </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
             {navItems.map((item) => (
-              <a
+              <button
                 key={item.name}
-                href={item.href}
-                className="text-gray-300 hover:text-white transition-colors"
+                onClick={() => onNavigate(item.href)}
+                className={`transition-colors ${
+                  currentPath === item.href
+                    ? "text-white"
+                    : "text-gray-300 hover:text-white"
+                }`}
               >
                 {item.name}
-              </a>
+              </button>
             ))}
           </div>
 
           {/* CTA Buttons */}
           <div className="hidden md:flex items-center gap-4">
-            <button className="px-5 py-2 text-white hover:text-[#F58025] transition-colors">
-              Sign In
-            </button>
-            <button className="px-5 py-2 bg-gradient-to-r from-[#F58025] to-[#ff9447] rounded-lg font-semibold text-white hover:shadow-lg hover:shadow-[#F58025]/50 transition-all">
-              Get Started
+            <button
+              onClick={() => onNavigate("/dashboard")}
+              className="px-5 py-2 bg-gradient-to-r from-[#F58025] to-[#ff9447] rounded-lg font-semibold text-white hover:shadow-lg hover:shadow-[#F58025]/50 transition-all"
+            >
+              Open Dashboard
             </button>
           </div>
 
@@ -71,20 +80,30 @@ export function Navigation() {
           >
             <div className="flex flex-col gap-2">
               {navItems.map((item) => (
-                <a
+                <button
                   key={item.name}
-                  href={item.href}
-                  className="px-4 py-2 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+                  onClick={() => {
+                    onNavigate(item.href);
+                    setIsOpen(false);
+                  }}
+                  className={`px-4 py-2 text-left rounded-lg transition-all ${
+                    currentPath === item.href
+                      ? "text-white bg-white/10"
+                      : "text-gray-300 hover:text-white hover:bg-white/5"
+                  }`}
                 >
                   {item.name}
-                </a>
+                </button>
               ))}
               <div className="flex flex-col gap-2 pt-2 mt-2 border-t border-white/10">
-                <button className="px-4 py-2 text-white hover:bg-white/5 rounded-lg transition-all text-left">
-                  Sign In
-                </button>
-                <button className="px-4 py-2 bg-gradient-to-r from-[#F58025] to-[#ff9447] rounded-lg font-semibold text-white">
-                  Get Started
+                <button
+                  onClick={() => {
+                    onNavigate("/dashboard");
+                    setIsOpen(false);
+                  }}
+                  className="px-4 py-2 bg-gradient-to-r from-[#F58025] to-[#ff9447] rounded-lg font-semibold text-white"
+                >
+                  Open Dashboard
                 </button>
               </div>
             </div>

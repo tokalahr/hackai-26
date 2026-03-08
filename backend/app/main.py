@@ -1,5 +1,11 @@
 import sys
 import os
+from pathlib import Path
+
+from dotenv import load_dotenv
+
+BACKEND_DIR = Path(__file__).resolve().parents[1]
+load_dotenv(BACKEND_DIR / ".env")
 
 # Ensure the `backend` directory is in the Python path
 backend_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

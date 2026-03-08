@@ -209,3 +209,82 @@ export type AriaProfile = {
 export async function fetchAriaGraph(profile: AriaProfile): Promise<AriaGraphResponse> {
   return apiPost<AriaGraphResponse>("/aria/graph", profile);
 }
+
+// --- ARIA Calibration Types & API ---
+
+export type CalibrationQuestion = {
+  skillId: string;
+  skillName: string;
+  question: string;
+  type?: string;
+};
+
+export type QuizQuestion = {
+  skillId: string;
+  skillName: string;
+  questionIndex: number;
+  question: string;
+  options: string[];
+  correctIndex: number;
+};
+
+export type CalibrationSkill = {
+  skillId: string;
+  skillName: string;
+  actualKnowledgeScore: number;
+  perceivedKnowledgeScore: number;
+  calibrationGap: number;
+  classification: "overconfident" | "underconfident" | "blindspot" | "hidden_strength" | "aligned";
+};
+
+export type KnowledgeMapEntry = {
+  skillName: string;
+  youSaid: string;
+  quizShows: string;
+  quizScore: string;
+  gap: string;
+  classification: string;
+};
+
+export type BlindspotCard = {
+  skillId: string;
+  reason: string;
+  impact: number;
+  nextStep: string;
+};
+
+export type AlertMessage = {
+  skillId: string;
+  skillName: string;
+  message: string;
+};
+
+export type CalibrationResult = {
+  calibrationScore: number;
+  skills: CalibrationSkill[];
+  knowledgeMap: KnowledgeMapEntry[];
+  blindspots: BlindspotCard[];
+  overconfidence: AlertMessage[];
+  underconfidence: AlertMessage[];
+};
+
+export async function fetchCalibrationQuestions(payload: {
+  courses: string[];
+  skills: string[];
+  targetRoles: string[];
+}): Promise<{ questions: CalibrationQuestion[] }> {
+  return apiPost("/calibrate/questions", payload);
+}
+
+export async function fetchCalibrationQuiz(payload: {
+  skills: { skillId: string; skillName: string }[];
+}): Promise<{ quiz: QuizQuestion[] }> {
+  return apiPost("/calibrate/quiz", payload);
+}
+
+export async function submitCalibration(payload: {
+  selfAssessment: { skillId: string; perceivedScore: number }[];
+  quizAnswers: { skillId: string; questionIndex: number; selectedIndex: number; correctIndex: number }[];
+}): Promise<CalibrationResult> {
+  return apiPost("/calibrate/submit", payload);
+}

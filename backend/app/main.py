@@ -22,6 +22,7 @@ from app.routes.trends import trends_bp
 from app.routes.overview import overview_bp
 from app.routes.events import events_bp
 from app.routes.aria import aria_bp
+from app.routes.calibrate import calibrate_bp
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": ["http://localhost:5173", "http://localhost:3000", "*"], "supports_credentials": True}})
@@ -34,6 +35,7 @@ app.register_blueprint(trends_bp)
 app.register_blueprint(overview_bp)
 app.register_blueprint(events_bp)
 app.register_blueprint(aria_bp)
+app.register_blueprint(calibrate_bp)
 
 @app.route('/')
 def home():

@@ -15,6 +15,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../co
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "../components/ui/alert";
+import { askBackendAssistant, fetchProfessors } from "../services/backend-api";
 
 interface LearningAssistantInput {
   userType: "student" | "professional";
@@ -27,6 +28,8 @@ interface LearningAssistantInput {
 export default function ProfessionalRecommendationsPage() {
   const [inputData, setInputData] = useState<LearningAssistantInput | null>(null);
   const [hasError, setHasError] = useState(false);
+  const [assistantAnswer, setAssistantAnswer] = useState("");
+  const [professorNames, setProfessorNames] = useState<string[]>([]);
 
   useEffect(() => {
     const savedData = sessionStorage.getItem("learningAssistantInput");
@@ -45,6 +48,42 @@ export default function ProfessionalRecommendationsPage() {
       setHasError(true);
     }
   }, []);
+
+  useEffect(() => {
+    if (!inputData || inputData.userType !== "professional") {
+      return;
+    }
+
+    let active = true;
+
+    const loadLiveRecommendations = async () => {
+      try {
+        const answer = await askBackendAssistant(
+          `Create concise professional recommendations for topic ${inputData.topic}, level ${inputData.currentLevel}, background ${inputData.background}.`,
+        );
+        if (active && answer) {
+          setAssistantAnswer(answer);
+        }
+
+        const professors = await fetchProfessors({ offset: 0 });
+        if (active && professors.length > 0) {
+          setProfessorNames(
+            professors
+              .slice(0, 3)
+              .map((prof) => `${prof.first_name ?? ""} ${prof.last_name ?? ""}`.trim())
+              .filter(Boolean),
+          );
+        }
+      } catch {
+        // Keep static recommendation content when backend data is unavailable.
+      }
+    };
+
+    void loadLiveRecommendations();
+    return () => {
+      active = false;
+    };
+  }, [inputData]);
 
   if (hasError || !inputData) {
     return (
@@ -114,7 +153,18 @@ export default function ProfessionalRecommendationsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
+              {assistantAnswer && (
+                <div className="mb-4 p-3 rounded-lg bg-purple-100 border border-purple-200">
+                  <p className="text-xs font-semibold text-purple-700 mb-1">Live Advisor Insight</p>
+                  <p className="text-sm text-slate-700">{assistantAnswer}</p>
+                </div>
+              )}
               <p className="text-slate-700">{inputData.background}</p>
+              {professorNames.length > 0 && (
+                <p className="text-sm text-slate-600 mt-3">
+                  Related faculty from Nebula: <strong>{professorNames.join(", ")}</strong>
+                </p>
+              )}
             </CardContent>
           </Card>
         </motion.div>

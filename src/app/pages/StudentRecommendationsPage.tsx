@@ -14,6 +14,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../co
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "../components/ui/alert";
+import { askBackendAssistant, fetchCourseTrends, parseCourseFromText } from "../services/backend-api";
 
 interface LearningAssistantInput {
   userType: "student" | "professional";
@@ -26,6 +27,8 @@ interface LearningAssistantInput {
 export default function StudentRecommendationsPage() {
   const [inputData, setInputData] = useState<LearningAssistantInput | null>(null);
   const [hasError, setHasError] = useState(false);
+  const [assistantAnswer, setAssistantAnswer] = useState("");
+  const [liveSectionCount, setLiveSectionCount] = useState<number | null>(null);
 
   useEffect(() => {
     const savedData = sessionStorage.getItem("learningAssistantInput");
@@ -44,6 +47,42 @@ export default function StudentRecommendationsPage() {
       setHasError(true);
     }
   }, []);
+
+  useEffect(() => {
+    if (!inputData || inputData.userType !== "student") {
+      return;
+    }
+
+    let active = true;
+
+    const loadLiveRecommendations = async () => {
+      try {
+        const answer = await askBackendAssistant(
+          `Create concise student recommendations for topic ${inputData.topic}, level ${inputData.currentLevel}, background ${inputData.background}.`,
+        );
+        if (active && answer) {
+          setAssistantAnswer(answer);
+        }
+
+        const parsed = parseCourseFromText(inputData.topic);
+        if (!parsed) {
+          return;
+        }
+
+        const sections = await fetchCourseTrends(parsed.subjectPrefix, parsed.courseNumber);
+        if (active) {
+          setLiveSectionCount(sections.length);
+        }
+      } catch {
+        // Keep static recommendation content when backend data is unavailable.
+      }
+    };
+
+    void loadLiveRecommendations();
+    return () => {
+      active = false;
+    };
+  }, [inputData]);
 
   if (hasError || !inputData) {
     return (
@@ -113,7 +152,18 @@ export default function StudentRecommendationsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
+              {assistantAnswer && (
+                <div className="mb-4 p-3 rounded-lg bg-indigo-100 border border-indigo-200">
+                  <p className="text-xs font-semibold text-indigo-700 mb-1">Live Advisor Insight</p>
+                  <p className="text-sm text-slate-700">{assistantAnswer}</p>
+                </div>
+              )}
               <p className="text-slate-700">{inputData.background}</p>
+              {liveSectionCount !== null && (
+                <p className="text-sm text-slate-600 mt-3">
+                  Nebula trends found <strong>{liveSectionCount}</strong> related sections.
+                </p>
+              )}
             </CardContent>
           </Card>
         </motion.div>

@@ -1,7 +1,9 @@
+import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { Calendar, Clock, MapPin, BookOpen, Users, Award } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import { Badge } from "../components/ui/badge";
+import { fetchCourses, fetchCourseTrends } from "../services/backend-api";
 
 // Mock data for campus events
 const campusEvents = [
@@ -84,6 +86,70 @@ const campusCourses = [
 ];
 
 export default function DashboardPage() {
+  const [events, setEvents] = useState(campusEvents);
+  const [courses, setCourses] = useState(campusCourses);
+  const [isLoadingLiveData, setIsLoadingLiveData] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+
+    const loadLiveData = async () => {
+      try {
+        const liveCourses = await fetchCourses({ offset: 0 });
+        if (!active || liveCourses.length === 0) {
+          return;
+        }
+
+        const mappedCourses = liveCourses.slice(0, 3).map((course, index) => ({
+          id: index + 1,
+          title:
+            `${course.subject_prefix ?? ""} ${course.course_number ?? ""}`.trim() || `Course ${index + 1}`,
+          dueDate: "Live from Nebula",
+          grade: "--/200",
+          gradeLabel: course.title || "Course details",
+          status: "Live",
+          statusColor: "bg-green-100 text-green-700",
+        }));
+        setCourses(mappedCourses);
+
+        const first = liveCourses[0];
+        if (!first?.subject_prefix || !first?.course_number) {
+          return;
+        }
+
+        const trendSections = await fetchCourseTrends(first.subject_prefix, first.course_number);
+        if (!active || trendSections.length === 0) {
+          return;
+        }
+
+        const mappedEvents = trendSections.slice(0, 5).map((section, index) => {
+          const meeting = section.meetings?.[0];
+          return {
+            id: index + 1,
+            title: `${first.subject_prefix} ${first.course_number} Section ${section.section_number ?? "N/A"}`,
+            date: meeting?.start_date || "Upcoming",
+            time: meeting?.start_time || "TBA",
+            location: `${meeting?.location?.building || "Campus"} ${meeting?.location?.room || "TBD"}`,
+            type: "Nebula Trend",
+            color: "bg-indigo-500",
+          };
+        });
+        setEvents(mappedEvents);
+      } catch {
+        // Keep existing mock data when backend is unavailable.
+      } finally {
+        if (active) {
+          setIsLoadingLiveData(false);
+        }
+      }
+    };
+
+    void loadLiveData();
+    return () => {
+      active = false;
+    };
+  }, []);
+
   return (
     <div className="min-h-screen p-8">
       <div className="max-w-7xl mx-auto space-y-8">
@@ -121,7 +187,7 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {campusEvents.map((event, index) => (
+                  {events.map((event, index) => (
                     <motion.div
                       key={event.id}
                       initial={{ opacity: 0, x: -10 }}
@@ -176,8 +242,11 @@ export default function DashboardPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
+                {isLoadingLiveData && (
+                  <p className="text-sm text-slate-500 mb-3">Loading live Nebula data...</p>
+                )}
                 <div className="space-y-4">
-                  {campusCourses.map((course, index) => (
+                  {courses.map((course, index) => (
                     <motion.div
                       key={course.id}
                       initial={{ opacity: 0, x: 10 }}

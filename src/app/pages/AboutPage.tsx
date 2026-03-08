@@ -131,7 +131,7 @@ export default function AboutPage() {
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-indigo-600 mt-1">•</span>
-                  <span>Campus events and courses are populated with mock data</span>
+                  <span>Campus events and courses are fetched from backend APIs when available</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-indigo-600 mt-1">•</span>

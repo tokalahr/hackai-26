@@ -24,11 +24,45 @@ interface LearningAssistantInput {
   background: string;
 }
 
+type StudentStep = {
+  step: number;
+  title: string;
+  description: string;
+  duration: string;
+};
+
+type StudentResource = {
+  title: string;
+  type: string;
+  description: string;
+};
+
+function parseJsonArray<T>(text: string): T[] | null {
+  try {
+    const parsed = JSON.parse(text);
+    return Array.isArray(parsed) ? parsed : null;
+  } catch {
+    const match = text.match(/\[[\s\S]*\]/);
+    if (!match) {
+      return null;
+    }
+    try {
+      const parsed = JSON.parse(match[0]);
+      return Array.isArray(parsed) ? parsed : null;
+    } catch {
+      return null;
+    }
+  }
+}
+
 export default function StudentRecommendationsPage() {
   const [inputData, setInputData] = useState<LearningAssistantInput | null>(null);
   const [hasError, setHasError] = useState(false);
   const [assistantAnswer, setAssistantAnswer] = useState("");
   const [liveSectionCount, setLiveSectionCount] = useState<number | null>(null);
+  const [nextSteps, setNextSteps] = useState<StudentStep[]>([]);
+  const [focusAreas, setFocusAreas] = useState<string[]>([]);
+  const [resources, setResources] = useState<StudentResource[]>([]);
 
   useEffect(() => {
     const savedData = sessionStorage.getItem("learningAssistantInput");
@@ -62,6 +96,43 @@ export default function StudentRecommendationsPage() {
         );
         if (active && answer) {
           setAssistantAnswer(answer);
+        }
+
+        const stepsRaw = await askBackendAssistant(
+          `Return only JSON array with 4 objects {"title","description","duration"} for student next steps on ${inputData.topic} at level ${inputData.currentLevel}.`,
+        );
+        const parsedSteps = parseJsonArray<{ title?: string; description?: string; duration?: string }>(stepsRaw);
+        if (active && parsedSteps && parsedSteps.length > 0) {
+          setNextSteps(
+            parsedSteps.slice(0, 4).map((step, index) => ({
+              step: index + 1,
+              title: step.title || `Step ${index + 1}`,
+              description: step.description || "Continue progressing through the learning path.",
+              duration: step.duration || "4-6 weeks",
+            })),
+          );
+        }
+
+        const focusRaw = await askBackendAssistant(
+          `Return only JSON array of 6 short focus areas for a student learning ${inputData.topic}.`,
+        );
+        const parsedFocus = parseJsonArray<string>(focusRaw);
+        if (active && parsedFocus && parsedFocus.length > 0) {
+          setFocusAreas(parsedFocus.slice(0, 6).map((item) => String(item)));
+        }
+
+        const resourcesRaw = await askBackendAssistant(
+          `Return only JSON array with 4 objects {"title","type","description"} for student resources on ${inputData.topic}.`,
+        );
+        const parsedResources = parseJsonArray<{ title?: string; type?: string; description?: string }>(resourcesRaw);
+        if (active && parsedResources && parsedResources.length > 0) {
+          setResources(
+            parsedResources.slice(0, 4).map((resource, index) => ({
+              title: resource.title || `Learning Resource ${index + 1}`,
+              type: resource.type || "Resource",
+              description: resource.description || "Recommended supporting material.",
+            })),
+          );
         }
 
         const parsed = parseCourseFromText(inputData.topic);
@@ -186,32 +257,10 @@ export default function StudentRecommendationsPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {[
-                  {
-                    step: 1,
-                    title: "Foundational Course",
-                    description: `Start with Introduction to ${inputData.topic} to build a strong foundation`,
-                    duration: "4-6 weeks",
-                  },
-                  {
-                    step: 2,
-                    title: "Intermediate Projects",
-                    description: "Apply your knowledge through hands-on projects and assignments",
-                    duration: "6-8 weeks",
-                  },
-                  {
-                    step: 3,
-                    title: "Advanced Concepts",
-                    description: "Dive deeper into specialized topics and advanced techniques",
-                    duration: "8-10 weeks",
-                  },
-                  {
-                    step: 4,
-                    title: "Capstone Project",
-                    description: "Complete a comprehensive project demonstrating mastery",
-                    duration: "4-6 weeks",
-                  },
-                ].map((item, index) => (
+                {nextSteps.length === 0 && (
+                  <p className="text-sm text-slate-500">No live next-step recommendations available.</p>
+                )}
+                {nextSteps.map((item, index) => (
                   <motion.div
                     key={item.step}
                     initial={{ opacity: 0, x: -20 }}
@@ -258,14 +307,10 @@ export default function StudentRecommendationsPage() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {[
-                  "Theoretical Foundations",
-                  "Practical Applications",
-                  "Problem-Solving Skills",
-                  "Research Methods",
-                  "Collaborative Projects",
-                  "Critical Thinking",
-                ].map((area, index) => (
+                {focusAreas.length === 0 && (
+                  <p className="text-sm text-slate-500">No live focus areas available.</p>
+                )}
+                {focusAreas.map((area, index) => (
                   <motion.div
                     key={area}
                     initial={{ opacity: 0, x: 100 }}
@@ -300,28 +345,10 @@ export default function StudentRecommendationsPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {[
-                  {
-                    title: "Comprehensive Textbook",
-                    type: "Book",
-                    description: `Essential readings in ${inputData.topic}`,
-                  },
-                  {
-                    title: "Interactive Online Course",
-                    type: "Course",
-                    description: "Self-paced learning with practical exercises",
-                  },
-                  {
-                    title: "Academic Journal Collection",
-                    type: "Research",
-                    description: "Latest research papers and case studies",
-                  },
-                  {
-                    title: "Study Group Forum",
-                    type: "Community",
-                    description: "Connect with peers and share knowledge",
-                  },
-                ].map((resource, index) => (
+                {resources.length === 0 && (
+                  <p className="text-sm text-slate-500">No live resources available.</p>
+                )}
+                {resources.map((resource, index) => (
                   <motion.div
                     key={resource.title}
                     initial={{ opacity: 0, x: -10 }}

@@ -5,89 +5,25 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../co
 import { Badge } from "../components/ui/badge";
 import { fetchCourses, fetchCourseTrends } from "../services/backend-api";
 
-// Mock data for campus events
-const campusEvents = [
-  {
-    id: 1,
-    title: "Team Meetup",
-    date: "February 20, 2023",
-    time: "9:30 AM",
-    location: "Main Hall",
-    type: "Meeting",
-    color: "bg-red-500",
-  },
-  {
-    id: 2,
-    title: "Illustration Workshop",
-    date: "February 21, 2023",
-    time: "10:30 AM",
-    location: "Design Studio",
-    type: "Workshop",
-    color: "bg-purple-500",
-  },
-  {
-    id: 3,
-    title: "Research Seminar",
-    date: "February 22, 2023",
-    time: "11:30 AM",
-    location: "Conference Room A",
-    type: "Seminar",
-    color: "bg-blue-500",
-  },
-  {
-    id: 4,
-    title: "Presentation Skills",
-    date: "February 24, 2023",
-    time: "10:30 AM",
-    location: "Training Center",
-    type: "Training",
-    color: "bg-orange-500",
-  },
-  {
-    id: 5,
-    title: "Project Report",
-    date: "February 25, 2023",
-    time: "2:00 PM",
-    location: "Library",
-    type: "Deadline",
-    color: "bg-green-500",
-  },
-];
+type EventItem = {
+  id: number;
+  title: string;
+  date: string;
+  time: string;
+  location: string;
+  type: string;
+  color: string;
+};
 
-// Mock data for campus courses
-const campusCourses = [
-  {
-    id: 1,
-    title: "Typography Test",
-    dueDate: "Tomorrow, 10:30 AM",
-    grade: "190/200",
-    gradeLabel: "Final grade",
-    status: "Completed",
-    statusColor: "bg-blue-100 text-blue-700",
-  },
-  {
-    id: 2,
-    title: "Inclusive Design Test",
-    dueDate: "Tomorrow, 10:30 AM",
-    grade: "160/200",
-    gradeLabel: "Final grade",
-    status: "Completed",
-    statusColor: "bg-blue-100 text-blue-700",
-  },
-  {
-    id: 3,
-    title: "Drawing Test",
-    dueDate: "23 Feb, 1:36 PM",
-    grade: "--/200",
-    gradeLabel: "Final grade",
-    status: "Upcoming",
-    statusColor: "bg-orange-100 text-orange-700",
-  },
-];
+type CourseItem = {
+  id: number;
+  title: string;
+  courseLabel: string;
+};
 
 export default function DashboardPage() {
-  const [events, setEvents] = useState(campusEvents);
-  const [courses, setCourses] = useState(campusCourses);
+  const [events, setEvents] = useState<EventItem[]>([]);
+  const [courses, setCourses] = useState<CourseItem[]>([]);
   const [isLoadingLiveData, setIsLoadingLiveData] = useState(true);
 
   useEffect(() => {
@@ -104,11 +40,7 @@ export default function DashboardPage() {
           id: index + 1,
           title:
             `${course.subject_prefix ?? ""} ${course.course_number ?? ""}`.trim() || `Course ${index + 1}`,
-          dueDate: "Live from Nebula",
-          grade: "--/200",
-          gradeLabel: course.title || "Course details",
-          status: "Live",
-          statusColor: "bg-green-100 text-green-700",
+          courseLabel: course.title || course.description || "Course details",
         }));
         setCourses(mappedCourses);
 
@@ -136,7 +68,8 @@ export default function DashboardPage() {
         });
         setEvents(mappedEvents);
       } catch {
-        // Keep existing mock data when backend is unavailable.
+        setCourses([]);
+        setEvents([]);
       } finally {
         if (active) {
           setIsLoadingLiveData(false);
@@ -187,6 +120,9 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
+                  {!isLoadingLiveData && events.length === 0 && (
+                    <p className="text-sm text-slate-500">No live events available.</p>
+                  )}
                   {events.map((event, index) => (
                     <motion.div
                       key={event.id}
@@ -246,6 +182,9 @@ export default function DashboardPage() {
                   <p className="text-sm text-slate-500 mb-3">Loading live Nebula data...</p>
                 )}
                 <div className="space-y-4">
+                  {!isLoadingLiveData && courses.length === 0 && (
+                    <p className="text-sm text-slate-500">No live course data available.</p>
+                  )}
                   {courses.map((course, index) => (
                     <motion.div
                       key={course.id}
@@ -259,17 +198,7 @@ export default function DashboardPage() {
                           <h3 className="font-semibold text-slate-900 mb-2">
                             {course.title}
                           </h3>
-                          <div className="text-sm text-slate-600 mb-2">
-                            {course.dueDate}
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Badge className={course.statusColor}>
-                              {course.status}
-                            </Badge>
-                            <span className="text-sm text-slate-600">
-                              {course.gradeLabel}: <strong>{course.grade}</strong>
-                            </span>
-                          </div>
+                          <p className="text-sm text-slate-600">{course.courseLabel}</p>
                         </div>
                         <div className="flex-shrink-0">
                           <Award className="w-5 h-5 text-slate-400" />
@@ -298,7 +227,7 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <CardDescription>Active Study Groups</CardDescription>
-                  <CardTitle className="text-2xl">12</CardTitle>
+                  <CardTitle className="text-2xl">{events.length}</CardTitle>
                 </div>
               </div>
             </CardHeader>
@@ -312,7 +241,7 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <CardDescription>Enrolled Courses</CardDescription>
-                  <CardTitle className="text-2xl">8</CardTitle>
+                  <CardTitle className="text-2xl">{courses.length}</CardTitle>
                 </div>
               </div>
             </CardHeader>
@@ -325,8 +254,8 @@ export default function DashboardPage() {
                   <Award className="w-6 h-6 text-green-600" />
                 </div>
                 <div>
-                  <CardDescription>Achievements</CardDescription>
-                  <CardTitle className="text-2xl">27</CardTitle>
+                  <CardDescription>Live Data Points</CardDescription>
+                  <CardTitle className="text-2xl">{events.length + courses.length}</CardTitle>
                 </div>
               </div>
             </CardHeader>

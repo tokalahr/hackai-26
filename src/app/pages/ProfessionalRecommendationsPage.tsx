@@ -25,11 +25,58 @@ interface LearningAssistantInput {
   background: string;
 }
 
+type RoadmapStep = {
+  phase: string;
+  title: string;
+  description: string;
+  timeline: string;
+  impact: string;
+};
+
+type Competency = {
+  skill: string;
+  level: number;
+};
+
+type Scenario = {
+  scenario: string;
+  description: string;
+  impact: string;
+};
+
+type ProfessionalResource = {
+  title: string;
+  type: string;
+  description: string;
+};
+
+function parseJsonArray<T>(text: string): T[] | null {
+  try {
+    const parsed = JSON.parse(text);
+    return Array.isArray(parsed) ? parsed : null;
+  } catch {
+    const match = text.match(/\[[\s\S]*\]/);
+    if (!match) {
+      return null;
+    }
+    try {
+      const parsed = JSON.parse(match[0]);
+      return Array.isArray(parsed) ? parsed : null;
+    } catch {
+      return null;
+    }
+  }
+}
+
 export default function ProfessionalRecommendationsPage() {
   const [inputData, setInputData] = useState<LearningAssistantInput | null>(null);
   const [hasError, setHasError] = useState(false);
   const [assistantAnswer, setAssistantAnswer] = useState("");
   const [professorNames, setProfessorNames] = useState<string[]>([]);
+  const [roadmapSteps, setRoadmapSteps] = useState<RoadmapStep[]>([]);
+  const [competencies, setCompetencies] = useState<Competency[]>([]);
+  const [scenarios, setScenarios] = useState<Scenario[]>([]);
+  const [resources, setResources] = useState<ProfessionalResource[]>([]);
 
   useEffect(() => {
     const savedData = sessionStorage.getItem("learningAssistantInput");
@@ -63,6 +110,68 @@ export default function ProfessionalRecommendationsPage() {
         );
         if (active && answer) {
           setAssistantAnswer(answer);
+        }
+
+        const roadmapRaw = await askBackendAssistant(
+          `Return only JSON array with 4 objects {"title","description","timeline","impact"} for a professional roadmap in ${inputData.topic}.`,
+        );
+        const parsedRoadmap = parseJsonArray<{
+          title?: string;
+          description?: string;
+          timeline?: string;
+          impact?: string;
+        }>(roadmapRaw);
+        if (active && parsedRoadmap && parsedRoadmap.length > 0) {
+          setRoadmapSteps(
+            parsedRoadmap.slice(0, 4).map((step, index) => ({
+              phase: `Phase ${index + 1}`,
+              title: step.title || `Milestone ${index + 1}`,
+              description: step.description || "Advance through this stage with measurable outcomes.",
+              timeline: step.timeline || "2-4 months",
+              impact: step.impact || "High",
+            })),
+          );
+        }
+
+        const competencyRaw = await askBackendAssistant(
+          `Return only JSON array with 6 objects {"skill","level"} where level is 50-100 for professional competencies in ${inputData.topic}.`,
+        );
+        const parsedCompetencies = parseJsonArray<{ skill?: string; level?: number }>(competencyRaw);
+        if (active && parsedCompetencies && parsedCompetencies.length > 0) {
+          setCompetencies(
+            parsedCompetencies.slice(0, 6).map((entry, index) => ({
+              skill: entry.skill || `Core Skill ${index + 1}`,
+              level: Math.max(50, Math.min(100, Number(entry.level) || 75)),
+            })),
+          );
+        }
+
+        const scenarioRaw = await askBackendAssistant(
+          `Return only JSON array with 4 objects {"scenario","description","impact"} for workplace scenarios in ${inputData.topic}.`,
+        );
+        const parsedScenarios = parseJsonArray<{ scenario?: string; description?: string; impact?: string }>(scenarioRaw);
+        if (active && parsedScenarios && parsedScenarios.length > 0) {
+          setScenarios(
+            parsedScenarios.slice(0, 4).map((scenario, index) => ({
+              scenario: scenario.scenario || `Use Case ${index + 1}`,
+              description: scenario.description || "Apply this capability to a practical initiative.",
+              impact: scenario.impact || "Business impact",
+            })),
+          );
+        }
+
+        const resourcesRaw = await askBackendAssistant(
+          `Return only JSON array with 4 objects {"title","type","description"} for professional development resources in ${inputData.topic}.`,
+        );
+        const parsedResources = parseJsonArray<{ title?: string; type?: string; description?: string }>(resourcesRaw);
+        if (active && parsedResources && parsedResources.length > 0) {
+          setResources(
+            parsedResources.slice(0, 4).map((resource, index) => ({
+              title: resource.title || `Resource ${index + 1}`,
+              type: resource.type || "Professional",
+              description: resource.description || "Recommended career development material.",
+            })),
+          );
         }
 
         const professors = await fetchProfessors({ offset: 0 });
@@ -187,36 +296,10 @@ export default function ProfessionalRecommendationsPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {[
-                  {
-                    phase: "Phase 1",
-                    title: "Skill Enhancement",
-                    description: `Master advanced techniques in ${inputData.topic} through professional certifications`,
-                    timeline: "1-3 months",
-                    impact: "High",
-                  },
-                  {
-                    phase: "Phase 2",
-                    title: "Industry Application",
-                    description: "Apply skills to real-world workplace projects and case studies",
-                    timeline: "3-6 months",
-                    impact: "Very High",
-                  },
-                  {
-                    phase: "Phase 3",
-                    title: "Leadership Development",
-                    description: "Build management skills and team leadership capabilities",
-                    timeline: "6-9 months",
-                    impact: "Critical",
-                  },
-                  {
-                    phase: "Phase 4",
-                    title: "Strategic Impact",
-                    description: "Lead initiatives and drive organizational change",
-                    timeline: "9-12 months",
-                    impact: "Strategic",
-                  },
-                ].map((item, index) => (
+                {roadmapSteps.length === 0 && (
+                  <p className="text-sm text-slate-500">No live roadmap steps available.</p>
+                )}
+                {roadmapSteps.map((item, index) => (
                   <motion.div
                     key={item.phase}
                     initial={{ opacity: 0, x: -20 }}
@@ -264,14 +347,10 @@ export default function ProfessionalRecommendationsPage() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {[
-                  { skill: "Strategic Thinking", level: 85 },
-                  { skill: "Project Management", level: 90 },
-                  { skill: "Team Leadership", level: 75 },
-                  { skill: "Communication", level: 88 },
-                  { skill: "Innovation", level: 80 },
-                  { skill: "Problem Solving", level: 92 },
-                ].map((item, index) => (
+                {competencies.length === 0 && (
+                  <p className="text-sm text-slate-500">No live competency data available.</p>
+                )}
+                {competencies.map((item, index) => (
                   <motion.div
                     key={item.skill}
                     initial={{ opacity: 0, x: 100 }}
@@ -316,28 +395,10 @@ export default function ProfessionalRecommendationsPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {[
-                  {
-                    scenario: "Process Optimization",
-                    description: "Streamline workflows using advanced techniques",
-                    impact: "30% efficiency gain",
-                  },
-                  {
-                    scenario: "Team Training Initiative",
-                    description: "Lead knowledge-sharing sessions for colleagues",
-                    impact: "Team skill uplift",
-                  },
-                  {
-                    scenario: "Innovation Project",
-                    description: "Pilot new methodologies in current projects",
-                    impact: "Competitive advantage",
-                  },
-                  {
-                    scenario: "Strategic Planning",
-                    description: "Contribute to department-level strategy",
-                    impact: "Leadership visibility",
-                  },
-                ].map((item, index) => (
+                {scenarios.length === 0 && (
+                  <p className="text-sm text-slate-500">No live workplace scenarios available.</p>
+                )}
+                {scenarios.map((item, index) => (
                   <motion.div
                     key={item.scenario}
                     initial={{ opacity: 0, x: -10 }}
@@ -382,28 +443,10 @@ export default function ProfessionalRecommendationsPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {[
-                  {
-                    title: "Industry Certification Program",
-                    type: "Certification",
-                    description: `Professional credentials in ${inputData.topic}`,
-                  },
-                  {
-                    title: "Executive Training Course",
-                    type: "Leadership",
-                    description: "Advanced management and strategy skills",
-                  },
-                  {
-                    title: "Professional Network",
-                    type: "Community",
-                    description: "Connect with industry leaders and peers",
-                  },
-                  {
-                    title: "Case Study Library",
-                    type: "Resources",
-                    description: "Real-world business applications and solutions",
-                  },
-                ].map((resource, index) => (
+                {resources.length === 0 && (
+                  <p className="text-sm text-slate-500">No live professional resources available.</p>
+                )}
+                {resources.map((resource, index) => (
                   <motion.div
                     key={resource.title}
                     initial={{ opacity: 0, x: -10 }}

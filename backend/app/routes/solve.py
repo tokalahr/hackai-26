@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 import requests
 import os
 from app.utils.nebula_client import nebula_get
+import re
 
 solve_bp = Blueprint("solve", __name__)
 
@@ -13,20 +14,20 @@ def solve():
     if not query:
         return jsonify({"error": "Query is required"}), 400
 
-    # Check if the query is asking for professors for a specific course
-    import re
+    # Check if the query is asking for professors for a specific course.
+    # Swagger-compatible flow: use /course/professors with subject_prefix/course_number.
     course_prof_pattern = re.search(r"professors? (?:for|of|teaching|who taught|instructing|in) ([\w\s]+)", query, re.IGNORECASE)
     if course_prof_pattern:
         course_info = course_prof_pattern.group(1).strip()
-        # Try to extract course number and subject prefix
-        # e.g., 'unix cs 3377' or 'cs 3377' or 'CS3377'
-        course_number_match = re.search(r"([a-zA-Z]{2,})[\s-]*([0-9]{3,4})", course_info)
-        if course_number_match:
-            subject_prefix = course_number_match.group(1).upper()
-            course_number = course_number_match.group(2)
+        # Prefer the final prefix+number pair, so text like "unix cs 3377"
+        # resolves to CS 3377 rather than UNIX.
+        matches = re.findall(r"([a-zA-Z]{2,})[\s-]*([0-9]{3,4})", course_info)
+        if matches:
+            subject_prefix, course_number = matches[-1]
+            subject_prefix = subject_prefix.upper()
             try:
                 nebula_response = nebula_get(
-                    "/professor/sections",
+                    "/course/professors",
                     params={"course_number": course_number, "subject_prefix": subject_prefix},
                     timeout=10,
                 )
@@ -43,12 +44,13 @@ def solve():
     elif "professor" in query.lower() or "professors" in query.lower():
         # Fetch real professor names from Nebula API (general)
         try:
-            nebula_response = nebula_get("/professor", params={"limit": 5}, timeout=10)
+            # Swagger supports offset pagination; no limit query is documented.
+            nebula_response = nebula_get("/professor", params={"offset": 0}, timeout=10)
             nebula_response.raise_for_status()
             nebula_data = nebula_response.json()
             professors = nebula_data.get("data", [])
             if professors:
-                names = [f"{p.get('first_name', '')} {p.get('last_name', '')}".strip() for p in professors]
+                names = [f"{p.get('first_name', '')} {p.get('last_name', '')}".strip() for p in professors[:5]]
                 names_str = ", ".join(names)
                 query = f"Here are some professors: {names_str}. {query}"
         except Exception as e:

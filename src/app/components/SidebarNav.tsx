@@ -6,6 +6,7 @@ import {
   Sparkles, 
   GraduationCap, 
   Briefcase, 
+  Brain,
   Info,
 } from "lucide-react";
 
@@ -15,6 +16,7 @@ const navItems = [
   { path: "/learning-assistant", icon: Sparkles, label: "Learning Assistant" },
   { path: "/student-recommendations", icon: GraduationCap, label: "Student Recommendations" },
   { path: "/professional-recommendations", icon: Briefcase, label: "Professional Recommendations" },
+  { path: "/calibration", icon: Brain, label: "ARIA Calibration" },
   { path: "/about", icon: Info, label: "About" },
 ];
 

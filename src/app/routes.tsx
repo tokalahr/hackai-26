@@ -7,6 +7,7 @@ import LearningAssistantPage from "./pages/LearningAssistantPage";
 import StudentRecommendationsPage from "./pages/StudentRecommendationsPage";
 import ProfessionalRecommendationsPage from "./pages/ProfessionalRecommendationsPage";
 import AboutPage from "./pages/AboutPage";
+import CalibrationPage from "./pages/CalibrationPage";
 import NotFoundPage from "./pages/NotFoundPage";
 
 export const router = createBrowserRouter([
@@ -21,6 +22,7 @@ export const router = createBrowserRouter([
       { path: "student-recommendations", Component: StudentRecommendationsPage },
       { path: "professional-recommendations", Component: ProfessionalRecommendationsPage },
       { path: "about", Component: AboutPage },
+      { path: "calibration", Component: CalibrationPage },
       { path: "*", Component: NotFoundPage },
     ],
   },

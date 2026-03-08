@@ -271,8 +271,8 @@ export default function DashboardPage() {
                   </div>
                 )}
 
-                {/* Events list */}
-                <div className="space-y-4">
+                {/* Events list — scrollable */}
+                <div className="space-y-4 max-h-[520px] overflow-y-auto pr-1">
                   {isLoadingEvents && (
                     <p className="text-sm text-slate-500">Loading current week events...</p>
                   )}

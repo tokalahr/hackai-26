@@ -239,6 +239,11 @@ function SkillTreeNode({ node }: { node: AriaNode }) {
   );
 }
 
+function cleanNodeLabel(id: string): string {
+  const idx = id.indexOf(":");
+  return idx >= 0 ? id.slice(idx + 1).replace(/_/g, " ") : id;
+}
+
 function BlindspotCard({ blindspot }: { blindspot: AriaBlindspot }) {
   const impactPct = Math.round(blindspot.impact_score * 100);
   const urgencyPct = Math.round(blindspot.urgency_score * 100);
@@ -248,8 +253,8 @@ function BlindspotCard({ blindspot }: { blindspot: AriaBlindspot }) {
         <div className="p-2 bg-amber-100 rounded-lg flex-shrink-0"><Eye className="w-5 h-5 text-amber-600" /></div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1 flex-wrap">
-            <span className="font-medium text-slate-900 text-sm">{blindspot.id}</span>
-            <Badge variant="outline" className="text-xs">{blindspot.type}</Badge>
+            <span className="font-medium text-slate-900 text-sm">{cleanNodeLabel(blindspot.id)}</span>
+            <Badge variant="outline" className="text-xs capitalize">{blindspot.type}</Badge>
           </div>
           <p className="text-sm text-slate-600 mb-2">{blindspot.reason}</p>
           <div className="flex gap-3 mb-2">
@@ -308,10 +313,15 @@ export default function SkillLearnerPage() {
   const quizTopics = useMemo(() => {
     const sc = readJson<StudentCache>("student-recommendations-cache");
     const pc = readJson<ProfessionalCache>("professional-recommendations-cache");
-    if (activeTrack === "student" && sc) { return uniqueOrdered([...(sc.nextSteps ?? []).map((i) => i.title || ""), ...(sc.focusAreas ?? [])]); }
-    if (activeTrack === "professional" && pc) { return uniqueOrdered([...(pc.roadmapSteps ?? []).map((i) => i.title || ""), ...(pc.competencies ?? []).map((i) => i.skill || "")]); }
-    return [];
-  }, [activeTrack]);
+    const base: string[] = [];
+    if (activeTrack === "student" && sc) { base.push(...(sc.nextSteps ?? []).map((i) => i.title || ""), ...(sc.focusAreas ?? [])); }
+    if (activeTrack === "professional" && pc) { base.push(...(pc.roadmapSteps ?? []).map((i) => i.title || ""), ...(pc.competencies ?? []).map((i) => i.skill || "")); }
+    // Also include skills from ARIA graph recommendations
+    if (ariaData?.recommendations?.nextSkills) {
+      for (const s of ariaData.recommendations.nextSkills) { if (s.label) base.push(s.label); }
+    }
+    return uniqueOrdered(base);
+  }, [activeTrack, ariaData]);
 
   // Track switching
   useEffect(() => {

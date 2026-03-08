@@ -27,8 +27,8 @@ export default function HomePage() {
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Welcome Section */}
         <motion.div
-          initial={{ opacity: 0, x: 100 }}
-          animate={{ opacity: 1, x: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
           className="space-y-2"
         >
@@ -42,8 +42,8 @@ export default function HomePage() {
 
         {/* Dashboard Preview */}
         <motion.div
-          initial={{ opacity: 0, x: 100 }}
-          animate={{ opacity: 1, x: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ delay: 0.1, duration: 0.5 }}
         >
           <Card className="overflow-hidden">
@@ -119,8 +119,8 @@ export default function HomePage() {
 
         {/* Quick Actions */}
         <motion.div
-          initial={{ opacity: 0, x: 100 }}
-          animate={{ opacity: 1, x: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.5 }}
         >
           <h2 className="text-2xl font-semibold text-slate-900 mb-4">
@@ -167,8 +167,8 @@ export default function HomePage() {
 
         {/* Stats Overview */}
         <motion.div
-          initial={{ opacity: 0, x: 100 }}
-          animate={{ opacity: 1, x: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.5 }}
           className="grid grid-cols-1 md:grid-cols-4 gap-4"
         >

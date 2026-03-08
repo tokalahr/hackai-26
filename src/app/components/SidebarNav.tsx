@@ -45,13 +45,13 @@ export default function SidebarNav({ isOpen, setIsOpen }: SidebarNavProps) {
       <AnimatePresence>
         {isOpen && (
           <motion.aside
-            initial={{ x: -280 }}
+            initial={{ x: -320 }}
             animate={{ x: 0 }}
-            exit={{ x: -280 }}
+            exit={{ x: -320 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="fixed left-0 top-16 bottom-0 w-64 bg-white shadow-xl z-50 overflow-y-auto"
+            className="glass-surface fixed left-0 top-0 z-50 h-screen w-[300px] overflow-y-auto shadow-xl"
           >
-            <nav className="p-4 space-y-2">
+            <nav className="flex flex-col gap-4 px-4 py-6">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = location.pathname === item.path;
@@ -61,14 +61,14 @@ export default function SidebarNav({ isOpen, setIsOpen }: SidebarNavProps) {
                     key={item.path}
                     to={item.path}
                     onClick={() => setIsOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                    className={`flex w-full items-center justify-start gap-3 rounded-lg px-4 py-3 transition-colors ${
                       isActive
                         ? "bg-indigo-50 text-indigo-600"
                         : "text-slate-700 hover:bg-slate-100"
                     }`}
                   >
-                    <Icon className="w-5 h-5" />
-                    <span className="text-sm font-medium">{item.label}</span>
+                    <Icon className="icon-soft-bg-sm h-5 w-5 shrink-0" />
+                    <span className="text-sm font-medium leading-none">{item.label}</span>
                   </Link>
                 );
               })}

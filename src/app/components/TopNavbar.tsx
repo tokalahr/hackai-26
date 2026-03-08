@@ -33,7 +33,7 @@ export default function TopNavbar({ isOpen, setIsOpen }: TopNavbarProps) {
   }, []);
 
   return (
-    <nav className="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-40">
+    <nav className="glass-surface sticky top-0 z-40 border-b border-slate-200/60">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center gap-3">
@@ -42,10 +42,10 @@ export default function TopNavbar({ isOpen, setIsOpen }: TopNavbarProps) {
               variant="outline"
               size="icon"
             >
-              {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {isOpen ? <X className="icon-soft-bg-sm h-5 w-5" /> : <Menu className="icon-soft-bg-sm h-5 w-5" />}
             </Button>
             <Link to="/home" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <GraduationCap className="w-8 h-8 text-indigo-600" />
+              <GraduationCap className="icon-soft-bg h-8 w-8 text-indigo-600" />
               <span className="font-semibold text-xl text-slate-900">UniLearn</span>
             </Link>
           </div>
@@ -58,7 +58,7 @@ export default function TopNavbar({ isOpen, setIsOpen }: TopNavbarProps) {
             </Link>
             <Link to="/dashboard">
               <Button variant="ghost" size="sm">
-                <LayoutDashboard className="w-4 h-4 mr-2" />
+                <LayoutDashboard className="icon-soft-bg-sm mr-2 h-4 w-4" />
                 Dashboard
               </Button>
             </Link>

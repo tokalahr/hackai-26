@@ -15,13 +15,13 @@ export default function Root() {
       <div className="flex">
         {!isEntryPage && <SidebarNav isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />}
         <main className={`flex-1 ${!isEntryPage ? 'ml-0' : ''}`}>
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={location.pathname}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3, ease: "easeInOut" }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
               className="h-full"
             >
               <Outlet />

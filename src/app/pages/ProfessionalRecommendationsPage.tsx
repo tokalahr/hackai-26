@@ -310,8 +310,8 @@ export default function ProfessionalRecommendationsPage() {
     return (
       <div className="min-h-screen p-8 flex items-center justify-center">
         <motion.div
-          initial={{ opacity: 0, x: 100 }}
-          animate={{ opacity: 1, x: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
           className="max-w-md w-full"
         >
@@ -340,8 +340,8 @@ export default function ProfessionalRecommendationsPage() {
       <div className="max-w-5xl mx-auto space-y-8">
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, x: 100 }}
-          animate={{ opacity: 1, x: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
           className="space-y-2"
         >
@@ -362,8 +362,8 @@ export default function ProfessionalRecommendationsPage() {
 
         {/* Overview */}
         <motion.div
-          initial={{ opacity: 0, x: 100 }}
-          animate={{ opacity: 1, x: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ delay: 0.1, duration: 0.5 }}
         >
           <Card className="bg-gradient-to-r from-purple-50 to-indigo-50">
@@ -402,8 +402,8 @@ export default function ProfessionalRecommendationsPage() {
 
         {/* Career Advancement Steps */}
         <motion.div
-          initial={{ opacity: 0, x: 100 }}
-          animate={{ opacity: 1, x: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.5 }}
         >
           <Card>
@@ -424,8 +424,8 @@ export default function ProfessionalRecommendationsPage() {
                 {roadmapSteps.map((item, index) => (
                   <motion.div
                     key={item.phase}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
                     transition={{ delay: 0.1 * index }}
                     className="flex gap-4 p-4 rounded-lg bg-slate-50 border-l-4 border-purple-600"
                   >
@@ -453,8 +453,8 @@ export default function ProfessionalRecommendationsPage() {
 
         {/* Core Competencies */}
         <motion.div
-          initial={{ opacity: 0, x: 100 }}
-          animate={{ opacity: 1, x: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.5 }}
         >
           <Card>
@@ -475,8 +475,8 @@ export default function ProfessionalRecommendationsPage() {
                 {competencies.map((item, index) => (
                   <motion.div
                     key={item.skill}
-                    initial={{ opacity: 0, x: 100 }}
-                    animate={{ opacity: 1, x: 0 }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
                     transition={{ delay: 0.1 * index, duration: 0.5 }}
                     className="p-4 rounded-lg border border-slate-200"
                   >
@@ -501,8 +501,8 @@ export default function ProfessionalRecommendationsPage() {
 
         {/* Real-World Scenarios */}
         <motion.div
-          initial={{ opacity: 0, x: 100 }}
-          animate={{ opacity: 1, x: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ delay: 0.4, duration: 0.5 }}
         >
           <Card>
@@ -523,8 +523,8 @@ export default function ProfessionalRecommendationsPage() {
                 {scenarios.map((item, index) => (
                   <motion.div
                     key={item.scenario}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
                     transition={{ delay: 0.1 * index }}
                     className="p-4 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors"
                   >
@@ -549,8 +549,8 @@ export default function ProfessionalRecommendationsPage() {
 
         {/* Professional Resources */}
         <motion.div
-          initial={{ opacity: 0, x: 100 }}
-          animate={{ opacity: 1, x: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ delay: 0.5, duration: 0.5 }}
         >
           <Card>
@@ -571,8 +571,8 @@ export default function ProfessionalRecommendationsPage() {
                 {resources.map((resource, index) => (
                   <motion.div
                     key={resource.title}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
                     transition={{ delay: 0.1 * index }}
                     className="flex items-start justify-between p-4 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors cursor-pointer"
                   >
@@ -597,8 +597,8 @@ export default function ProfessionalRecommendationsPage() {
 
         {/* Action Buttons */}
         <motion.div
-          initial={{ opacity: 0, x: 100 }}
-          animate={{ opacity: 1, x: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ delay: 0.6, duration: 0.5 }}
           className="flex gap-4"
         >
@@ -618,3 +618,4 @@ export default function ProfessionalRecommendationsPage() {
     </div>
   );
 }
+

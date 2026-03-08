@@ -145,8 +145,8 @@ export default function DashboardPage() {
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, x: 100 }}
-          animate={{ opacity: 1, x: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
           className="space-y-2"
         >
@@ -161,8 +161,8 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Campus Events */}
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             transition={{ delay: 0.1 }}
           >
             <Card>
@@ -186,8 +186,8 @@ export default function DashboardPage() {
                   {events.map((event, index) => (
                     <motion.div
                       key={event.id}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
                       transition={{ delay: 0.1 * index }}
                       className="flex gap-4 p-4 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors"
                     >
@@ -223,8 +223,8 @@ export default function DashboardPage() {
 
           {/* Campus Courses */}
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
           >
             <Card>
@@ -258,8 +258,8 @@ export default function DashboardPage() {
                   {courses.map((course, index) => (
                     <motion.div
                       key={course.id}
-                      initial={{ opacity: 0, x: 10 }}
-                      animate={{ opacity: 1, x: 0 }}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
                       transition={{ delay: 0.1 * index }}
                       className="p-4 rounded-lg border border-slate-200 hover:border-indigo-300 transition-colors"
                     >
@@ -287,8 +287,8 @@ export default function DashboardPage() {
 
         {/* Additional Stats */}
         <motion.div
-          initial={{ opacity: 0, x: 100 }}
-          animate={{ opacity: 1, x: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.5 }}
           className="grid grid-cols-1 md:grid-cols-3 gap-4"
         >
@@ -338,3 +338,4 @@ export default function DashboardPage() {
     </div>
   );
 }
+

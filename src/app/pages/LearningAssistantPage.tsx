@@ -74,8 +74,8 @@ export default function LearningAssistantPage() {
       <div className="max-w-3xl mx-auto space-y-8">
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, x: 100 }}
-          animate={{ opacity: 1, x: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
           className="space-y-2"
         >
@@ -96,8 +96,8 @@ export default function LearningAssistantPage() {
 
         {/* Form */}
         <motion.div
-          initial={{ opacity: 0, x: 100 }}
-          animate={{ opacity: 1, x: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ delay: 0.1, duration: 0.5 }}
         >
           <Card>
@@ -203,3 +203,4 @@ export default function LearningAssistantPage() {
     </div>
   );
 }
+

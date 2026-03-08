@@ -204,6 +204,7 @@ export type AriaProfile = {
   target_roles: string[];
   interests: string[];
   inferred_skills_override: string[];
+  proven_skills: Record<string, number>;
 };
 
 export async function fetchAriaGraph(profile: AriaProfile): Promise<AriaGraphResponse> {

@@ -196,6 +196,20 @@ export default function CalibrationPage() {
 
       setResults(data);
       setPhase("results");
+
+      // Persist calibration results so the ARIA skill graph can read them
+      if (data.skills && data.skills.length > 0) {
+        const provenSkills: Record<string, number> = {};
+        for (const s of data.skills) {
+          provenSkills[s.skillName || s.skillId] = s.actualKnowledgeScore;
+        }
+        sessionStorage.setItem("aria-calibration-results", JSON.stringify({
+          provenSkills,
+          calibrationScore: data.calibrationScore,
+          timestamp: Date.now(),
+        }));
+        window.dispatchEvent(new Event("skill-tracks-updated"));
+      }
     } catch {
       setError("Failed to compute calibration. Please try again.");
       setPhase("quiz");

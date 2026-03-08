@@ -106,6 +106,7 @@ def generate_aria_output(profile: dict[str, Any]) -> dict[str, Any]:
       - target_roles: list[str]  (optional)
       - interests: list[str]  (optional)
       - inferred_skills_override: list[str]  (optional, from recommendations)
+      - proven_skills: dict[str, float]  (optional, skill_label -> score 0-1 from calibration/quiz)
     """
     akg = build_default_akg()
     sdg = _build_sdg_from_akg(akg)
@@ -121,8 +122,23 @@ def generate_aria_output(profile: dict[str, Any]) -> dict[str, Any]:
         if candidate in akg.nodes:
             extra_skills.add(candidate)
 
-    unlocked_skills = _infer_skills_from_courses(akg, completed) | extra_skills
-    in_progress_skills = _infer_skills_from_courses(akg, current) - unlocked_skills
+    # Proven skills from calibration/quiz results: score >= 0.5 → unlocked, > 0 → in_progress
+    proven_skills: dict[str, float] = profile.get("proven_skills", {})
+    proven_unlocked: set[str] = set()
+    proven_in_progress: set[str] = set()
+    for raw_label, score in proven_skills.items():
+        candidate = f"skill:{raw_label}"
+        if candidate not in akg.nodes:
+            norm = raw_label.replace("_", " ").strip()
+            candidate = f"skill:{norm}"
+        if candidate in akg.nodes:
+            if score >= 0.5:
+                proven_unlocked.add(candidate)
+            elif score > 0:
+                proven_in_progress.add(candidate)
+
+    unlocked_skills = _infer_skills_from_courses(akg, completed) | extra_skills | proven_unlocked
+    in_progress_skills = (_infer_skills_from_courses(akg, current) | proven_in_progress) - unlocked_skills
 
     # --- A. Build Skill Tree ---
     seed_ids = completed | current | unlocked_skills | in_progress_skills

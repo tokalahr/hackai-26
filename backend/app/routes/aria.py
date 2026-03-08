@@ -14,6 +14,7 @@ def aria_graph():
         "target_roles": data.get("target_roles", []),
         "interests": data.get("interests", []),
         "inferred_skills_override": data.get("inferred_skills_override", []),
+        "proven_skills": data.get("proven_skills", {}),
     }
     try:
         result = generate_aria_output(profile)

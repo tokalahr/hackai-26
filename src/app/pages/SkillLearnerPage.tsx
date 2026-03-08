@@ -343,7 +343,14 @@ export default function SkillLearnerPage() {
     return () => { active = false; };
   }, [activeTrack, selectedFocus, questionIndex, answers]);
 
-  // ARIA graph fetch
+  // Track proven skill count so graph re-fetches when quiz progress changes meaningfully
+  const provenSkillCount = useMemo(() => {
+    const raw = sessionStorage.getItem("aria-quiz-progress");
+    if (!raw) return 0;
+    try { const d = JSON.parse(raw); return Object.keys(d.provenSkills || {}).length; } catch { return 0; }
+  }, [answers]);
+
+  // ARIA graph fetch — re-runs when track changes or proven skills change
   useEffect(() => {
     if (!hasStudentTrack && !hasProfessionalTrack) return;
     let cancelled = false;
@@ -360,22 +367,56 @@ export default function SkillLearnerPage() {
     else if (activeTrack === "professional" && pc) { (pc.competencies || []).forEach((c) => { if (c.skill) inferredSkills.push(c.skill); }); (pc.roadmapSteps || []).forEach((r) => { if (r.title) inferredSkills.push(r.title); }); }
     const interests = topic ? [topic] : [];
     if (background) background.split(/[,.\n]/).map((s) => s.trim()).filter((s) => s.length > 2 && s.length < 40).slice(0, 3).forEach((s) => interests.push(s));
+
+    // Collect proven skills from calibration results + quiz progress
+    const provenSkills: Record<string, number> = {};
+    const calRaw = sessionStorage.getItem("aria-calibration-results");
+    if (calRaw) { try { const cal = JSON.parse(calRaw); Object.assign(provenSkills, cal.provenSkills || {}); } catch { /* ignore */ } }
+    const quizRaw = sessionStorage.getItem("aria-quiz-progress");
+    if (quizRaw) {
+      try {
+        const qp = JSON.parse(quizRaw);
+        for (const [skill, score] of Object.entries(qp.provenSkills || {})) {
+          const existing = provenSkills[skill];
+          if (existing === undefined || (score as number) > existing) provenSkills[skill] = score as number;
+        }
+      } catch { /* ignore */ }
+    }
+
     const profile: AriaProfile = {
       completed_courses: coursesList.length > 0 ? coursesList : ["CS 1336", "CS 1337", "CS 2305", "CS 2336"],
       current_courses: ["CS 3345"], major: "Computer Science",
       target_roles: activeTrack === "professional" ? ["Software Engineer", "Full-Stack Developer"] : ["Software Engineer"],
-      interests, inferred_skills_override: inferredSkills,
+      interests, inferred_skills_override: inferredSkills, proven_skills: provenSkills,
     };
     fetchAriaGraph(profile).then((data) => { if (!cancelled) setAriaData(data); }).catch((err) => { if (!cancelled) setError(err?.message || "Failed to load ARIA graph"); }).finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
-  }, [activeTrack]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTrack, provenSkillCount]);
 
   const switchTrack = (next: QuizTrack) => { setActiveTrack(next); setSearchParams({ track: next }); setAriaData(null); };
   const chooseFocus = (focus: string) => { setSelectedFocus(focus); setFocusSelectorOpen(false); setQuestionIndex(0); setSelectedIndex(null); setShowResult(false); };
   const submitAnswer = () => {
     if (!currentQuestion || selectedIndex === null) return;
-    setAnswers((prev) => [...prev, { questionId: currentQuestion.id, topic: currentQuestion.topic, selectedIndex, isCorrect: selectedIndex === currentQuestion.correctIndex, prompt: currentQuestion.prompt, options: currentQuestion.options }]);
+    const newAnswer = { questionId: currentQuestion.id, topic: currentQuestion.topic, selectedIndex, isCorrect: selectedIndex === currentQuestion.correctIndex, prompt: currentQuestion.prompt, options: currentQuestion.options };
+    const updated = [...answers, newAnswer];
+    setAnswers(updated);
     setShowResult(true);
+
+    // Persist quiz progress so the ARIA graph can incorporate proven skills
+    const topicScores: Record<string, { correct: number; total: number }> = {};
+    for (const a of updated) {
+      if (!topicScores[a.topic]) topicScores[a.topic] = { correct: 0, total: 0 };
+      topicScores[a.topic].total++;
+      if (a.isCorrect) topicScores[a.topic].correct++;
+    }
+    const provenSkills: Record<string, number> = {};
+    for (const [topic, counts] of Object.entries(topicScores)) {
+      if (counts.total >= 2) provenSkills[topic] = counts.correct / counts.total;
+    }
+    if (Object.keys(provenSkills).length > 0) {
+      sessionStorage.setItem("aria-quiz-progress", JSON.stringify({ provenSkills, timestamp: Date.now() }));
+    }
   };
   const nextQuestion = () => setQuestionIndex((prev) => prev + 1);
 

@@ -21,10 +21,12 @@ import {
   ChevronDown,
   ChevronUp,
   Network,
+  LayoutGrid,
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
+import SkillTreeGraph from "../components/SkillTreeGraph";
 import {
   fetchAriaGraph,
   type AriaGraphResponse,
@@ -248,6 +250,7 @@ export default function SkillLearnerPage() {
   const [filterState, setFilterState] = useState<string | null>(null);
   const [filterType, setFilterType] = useState<string | null>(null);
   const [fetchKey, setFetchKey] = useState(0);
+  const [viewMode, setViewMode] = useState<"graph" | "list">("graph");
 
   useEffect(() => {
     if (hasStudentTrack && !hasProfessionalTrack) {
@@ -542,73 +545,94 @@ export default function SkillLearnerPage() {
 
         {ariaData && !loading && (
           <>
-            {/* Skill Tree */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Network className="w-5 h-5 text-indigo-600" />
-                  Skill Tree
-                </CardTitle>
-                <CardDescription>
-                  Your Academic Knowledge Graph — {ariaData.skillTree.nodes.length} nodes,{" "}
-                  {ariaData.skillTree.edges.length} edges. Click stats above to filter.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Type filter pills */}
-                <div className="flex flex-wrap gap-2">
-                  {["skill", "course", "concept", "event", "role"].map((t) => (
+            {/* Skill Tree — view toggle */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Network className="w-5 h-5 text-indigo-600" />
+                <h2 className="text-xl font-semibold text-slate-900">Skill Tree</h2>
+                <span className="text-sm text-slate-500">
+                  {ariaData.skillTree.nodes.length} nodes · {ariaData.skillTree.edges.length} edges
+                </span>
+              </div>
+              <div className="flex gap-1 bg-slate-100 rounded-lg p-1">
+                <Button
+                  variant={viewMode === "graph" ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setViewMode("graph")}
+                >
+                  <Network className="w-4 h-4 mr-1" />
+                  Graph
+                </Button>
+                <Button
+                  variant={viewMode === "list" ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setViewMode("list")}
+                >
+                  <LayoutGrid className="w-4 h-4 mr-1" />
+                  List
+                </Button>
+              </div>
+            </div>
+
+            {/* Graph View */}
+            {viewMode === "graph" && <SkillTreeGraph data={ariaData} />}
+
+            {/* List View */}
+            {viewMode === "list" && (
+              <Card>
+                <CardContent className="space-y-4 pt-6">
+                  <div className="flex flex-wrap gap-2">
+                    {["skill", "course", "concept", "event", "role"].map((t) => (
+                      <Button
+                        key={t}
+                        variant={filterType === t ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setFilterType(filterType === t ? null : t)}
+                      >
+                        <TypeIcon type={t} />
+                        <span className="ml-1 capitalize">{t}</span>
+                      </Button>
+                    ))}
+                    {(filterState || filterType) && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setFilterState(null);
+                          setFilterType(null);
+                        }}
+                      >
+                        Clear filters
+                      </Button>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {displayedNodes.map((node) => (
+                      <SkillTreeNode key={node.id} node={node} />
+                    ))}
+                  </div>
+                  {filteredNodes.length > 24 && (
                     <Button
-                      key={t}
-                      variant={filterType === t ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setFilterType(filterType === t ? null : t)}
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => setShowAllNodes(!showAllNodes)}
                     >
-                      <TypeIcon type={t} />
-                      <span className="ml-1 capitalize">{t}</span>
-                    </Button>
-                  ))}
-                  {(filterState || filterType) && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        setFilterState(null);
-                        setFilterType(null);
-                      }}
-                    >
-                      Clear filters
+                      {showAllNodes ? (
+                        <>
+                          <ChevronUp className="w-4 h-4 mr-1" />
+                          Show fewer ({filteredNodes.length} total)
+                        </>
+                      ) : (
+                        <>
+                          <ChevronDown className="w-4 h-4 mr-1" />
+                          Show all {filteredNodes.length} nodes
+                        </>
+                      )}
                     </Button>
                   )}
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {displayedNodes.map((node) => (
-                    <SkillTreeNode key={node.id} node={node} />
-                  ))}
-                </div>
-
-                {filteredNodes.length > 24 && (
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => setShowAllNodes(!showAllNodes)}
-                  >
-                    {showAllNodes ? (
-                      <>
-                        <ChevronUp className="w-4 h-4 mr-1" />
-                        Show fewer ({filteredNodes.length} total)
-                      </>
-                    ) : (
-                      <>
-                        <ChevronDown className="w-4 h-4 mr-1" />
-                        Show all {filteredNodes.length} nodes
-                      </>
-                    )}
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Blindspots */}
             {ariaData.blindspots.length > 0 && (

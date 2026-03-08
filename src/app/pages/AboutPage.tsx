@@ -49,14 +49,14 @@ export default function AboutPage() {
           className="space-y-2"
         >
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-blue-100 rounded-lg">
+            <div className="p-3 bg-blue-100 dark:bg-blue-500/15 rounded-lg">
               <Info className="w-8 h-8 text-blue-600" />
             </div>
             <div>
-              <h1 className="text-4xl font-bold text-slate-900">
+              <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-100">
                 About Nyx
               </h1>
-              <p className="text-lg text-slate-600">
+              <p className="text-lg text-slate-600 dark:text-slate-300">
                 Your personalized learning companion
               </p>
             </div>
@@ -69,12 +69,12 @@ export default function AboutPage() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.1, duration: 0.5 }}
         >
-          <Card className="bg-gradient-to-r from-blue-50 to-indigo-50">
+          <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-900 dark:to-slate-800 border-slate-200 dark:border-slate-700">
             <CardHeader>
-              <CardTitle className="text-2xl">Our Mission</CardTitle>
+              <CardTitle className="text-2xl text-slate-900 dark:text-slate-100">Our Mission</CardTitle>
             </CardHeader>
             <CardContent>
-              {loading ? <p>Loading...</p> : error ? <p className="text-red-500">{error}</p> : <p className="text-lg text-slate-700 leading-relaxed">{aboutData?.mission}</p>}
+              {loading ? <p className="text-slate-600 dark:text-slate-300">Loading...</p> : error ? <p className="text-red-500">{error}</p> : <p className="text-lg text-slate-700 dark:text-slate-200 leading-relaxed">{aboutData?.mission}</p>}
             </CardContent>
           </Card>
         </motion.div>
@@ -85,13 +85,13 @@ export default function AboutPage() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.2, duration: 0.5 }}
         >
-          <h2 className="text-2xl font-semibold text-slate-900 mb-4">
+          <h2 className="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-4">
             What We Offer
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {loading ? <Card><CardHeader><CardTitle>Loading...</CardTitle></CardHeader></Card> : error ? <Card><CardHeader><CardTitle className="text-red-500">{error}</CardTitle></CardHeader></Card> : aboutData?.features.map((feature) => (
+            {loading ? <Card><CardHeader className="pb-6"><CardTitle>Loading...</CardTitle></CardHeader></Card> : error ? <Card><CardHeader className="pb-6"><CardTitle className="text-red-500">{error}</CardTitle></CardHeader></Card> : aboutData?.features.map((feature) => (
               <Card className="h-full hover:shadow-lg transition-shadow" key={feature.title}>
-                <CardHeader>
+                <CardHeader className="pb-6">
                   <CardTitle>{feature.title}</CardTitle>
                   <CardDescription>{feature.description}</CardDescription>
                 </CardHeader>
@@ -114,7 +114,7 @@ export default function AboutPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {loading ? <p>Loading...</p> : error ? <p className="text-red-500">{error}</p> : <p className="text-slate-700">{aboutData?.platformMode}</p>}
+              {loading ? <p className="text-slate-600 dark:text-slate-300">Loading...</p> : error ? <p className="text-red-500">{error}</p> : <p className="text-slate-700 dark:text-slate-200">{aboutData?.platformMode}</p>}
             </CardContent>
           </Card>
         </motion.div>
@@ -130,7 +130,7 @@ export default function AboutPage() {
               <CardTitle>Our Vision</CardTitle>
             </CardHeader>
             <CardContent>
-              {loading ? <p>Loading...</p> : error ? <p className="text-red-500">{error}</p> : <p className="text-slate-700 leading-relaxed">{aboutData?.vision}</p>}
+              {loading ? <p className="text-slate-600 dark:text-slate-300">Loading...</p> : error ? <p className="text-red-500">{error}</p> : <p className="text-slate-700 dark:text-slate-200 leading-relaxed">{aboutData?.vision}</p>}
             </CardContent>
           </Card>
         </motion.div>
@@ -143,25 +143,25 @@ export default function AboutPage() {
         >
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {loading ? (
-              <Card><CardHeader className="text-center"><CardTitle>Loading...</CardTitle></CardHeader></Card>
+              <Card><CardHeader className="text-center pb-6"><CardTitle>Loading...</CardTitle></CardHeader></Card>
             ) : error ? (
-              <Card><CardHeader className="text-center"><CardTitle className="text-red-500">{error}</CardTitle></CardHeader></Card>
+              <Card><CardHeader className="text-center pb-6"><CardTitle className="text-red-500">{error}</CardTitle></CardHeader></Card>
             ) : (
               <>
                 <Card>
-                  <CardHeader className="text-center">
+                  <CardHeader className="text-center pb-6">
                     <CardTitle className="text-4xl text-indigo-600">{aboutData?.stats.pathways}</CardTitle>
                     <CardDescription>Learning Pathways</CardDescription>
                   </CardHeader>
                 </Card>
                 <Card>
-                  <CardHeader className="text-center">
+                  <CardHeader className="text-center pb-6">
                     <CardTitle className="text-4xl text-purple-600">{aboutData?.stats.personalized}</CardTitle>
                     <CardDescription>Personalized</CardDescription>
                   </CardHeader>
                 </Card>
                 <Card>
-                  <CardHeader className="text-center">
+                  <CardHeader className="text-center pb-6">
                     <CardTitle className="text-4xl text-blue-600">{aboutData?.stats.possibilities}</CardTitle>
                     <CardDescription>Possibilities</CardDescription>
                   </CardHeader>

@@ -568,8 +568,8 @@ export default function CalibrationPage() {
                 <Brain className="w-8 h-8 text-indigo-600" />
               </div>
               <div>
-                <h1 className="text-4xl font-bold text-slate-900">ARIA Calibration Results</h1>
-                <p className="text-lg text-slate-500">Quiz-verified knowledge calibration</p>
+                <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-100">ARIA Calibration Results</h1>
+                <p className="text-lg text-slate-500 dark:text-slate-300">Quiz-verified knowledge calibration</p>
               </div>
             </div>
           </motion.div>
@@ -578,11 +578,11 @@ export default function CalibrationPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Left: Dominant percentage */}
             <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }}>
-              <Card className="bg-white border border-slate-200 h-full flex items-center justify-center">
+              <Card className="bg-slate-50 border border-slate-200 dark:bg-slate-900 dark:border-slate-700 h-full flex items-center justify-center">
                 <div className="flex flex-col items-center justify-center text-center py-6">
-                  <p className="text-slate-500 text-xs mb-1">Calibration Score</p>
-                  <p className="text-7xl font-extrabold text-black tracking-tight">{calibrationPct}%</p>
-                  <p className="text-sm text-black mt-2">
+                  <p className="text-slate-500 dark:text-slate-400 text-xs mb-1">Calibration Score</p>
+                  <p className="text-7xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">{calibrationPct}%</p>
+                  <p className="text-sm text-slate-700 dark:text-slate-300 mt-2">
                     {calibrationPct >= 80
                       ? "Excellent self-awareness!"
                       : calibrationPct >= 60
@@ -595,9 +595,9 @@ export default function CalibrationPage() {
 
             {/* Right: All classifications in one card */}
             <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.15 }}>
-              <Card className="bg-white border border-slate-200 h-full">
+              <Card className="bg-slate-50 border border-slate-200 dark:bg-slate-900 dark:border-slate-700 h-full">
                 <CardHeader className="pb-2 pt-4 px-4">
-                  <CardTitle className="text-sm text-slate-900">Classification Breakdown</CardTitle>
+                  <CardTitle className="text-sm text-slate-900 dark:text-slate-100">Classification Breakdown</CardTitle>
                   <CardDescription className="text-xs">How your skills are distributed</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-1 px-4 pb-4">
@@ -607,7 +607,7 @@ export default function CalibrationPage() {
                     return (
                       <div
                         key={key}
-                        className="flex items-center justify-between px-3 py-2 text-slate-800"
+                        className="flex items-center justify-between px-3 py-2 text-slate-800 dark:text-slate-200"
                       >
                         <div className="flex items-center gap-2">
                           <Icon className="w-4 h-4" />

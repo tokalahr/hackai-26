@@ -167,7 +167,7 @@ export default function HomePage() {
               <CardDescription>Quick overview of your learning progress</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="rounded-lg overflow-hidden border border-slate-200">
+              <div className="rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700">
                 <div className="grid grid-cols-2 gap-4 p-6 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/50 dark:to-purple-950/50">
                   {/* Skills Progress */}
                   <div className="bg-white dark:bg-slate-800 rounded-lg p-4 shadow-sm">
@@ -178,7 +178,7 @@ export default function HomePage() {
                     <div className="text-2xl font-bold text-slate-900 dark:text-white">
                       {loaded ? `${stats.skillsUnlocked} / ${stats.totalSkills}` : "..."}
                     </div>
-                    <div className="w-full bg-slate-200 rounded-full h-2 mt-2">
+                    <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 mt-2">
                       <div className="bg-indigo-600 h-2 rounded-full transition-all" style={{ width: `${progressPct}%` }} />
                     </div>
                   </div>
@@ -186,13 +186,13 @@ export default function HomePage() {
                   {/* Courses Tracked */}
                   <div className="bg-white dark:bg-slate-800 rounded-lg p-4 shadow-sm">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-slate-600">Courses Tracked</span>
+                      <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Courses Tracked</span>
                       <BookOpen className="w-4 h-4 text-blue-600" />
                     </div>
                     <div className="text-2xl font-bold text-slate-900 dark:text-white">
                       {loaded ? stats.coursesTracked : "..."}
                     </div>
-                    <div className="text-sm text-slate-500 mt-1">
+                    <div className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                       {stats.skillsAvailable > 0 ? `${stats.skillsAvailable} skills available next` : "Add courses on Dashboard"}
                     </div>
                   </div>
@@ -200,13 +200,13 @@ export default function HomePage() {
                   {/* Today's Events */}
                   <div className="bg-white dark:bg-slate-800 rounded-lg p-4 shadow-sm">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-slate-600">Today's Events</span>
+                      <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Today's Events</span>
                       <Calendar className="w-4 h-4 text-purple-600" />
                     </div>
                     <div className="text-lg font-semibold text-slate-900 dark:text-white">
                       {loaded ? (stats.todayEvents > 0 ? `${stats.todayEvents} events` : "No events today") : "..."}
                     </div>
-                    <div className="text-sm text-slate-500 truncate">
+                    <div className="text-sm text-slate-500 dark:text-slate-400 truncate">
                       {stats.nextEventName || "Check the Dashboard for this week"}
                     </div>
                   </div>
@@ -214,7 +214,7 @@ export default function HomePage() {
                   {/* Calibration Score */}
                   <div className="bg-white dark:bg-slate-800 rounded-lg p-4 shadow-sm">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-slate-600">Calibration</span>
+                      <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Calibration</span>
                       <Brain className="w-4 h-4 text-indigo-600" />
                     </div>
                     <div className="text-lg font-semibold text-slate-900 dark:text-white">
@@ -222,7 +222,7 @@ export default function HomePage() {
                         ? `${Math.round(stats.calibrationScore * 100)}%`
                         : loaded ? "Not calibrated" : "..."}
                     </div>
-                    <div className="text-sm text-slate-500">
+                    <div className="text-sm text-slate-500 dark:text-slate-400">
                       {stats.calibrationScore !== null ? "Knowledge accuracy" : "Take the ARIA Calibration"}
                     </div>
                   </div>
@@ -230,7 +230,7 @@ export default function HomePage() {
               </div>
               <div className="mt-4">
                 <Link to="/dashboard">
-                  <Button className="w-full">View Full Dashboard</Button>
+                  <Button className="w-full bg-slate-100 text-slate-900 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600">View Full Dashboard</Button>
                 </Link>
               </div>
             </CardContent>
@@ -239,20 +239,20 @@ export default function HomePage() {
 
         {/* Quick Actions */}
         <motion.div initial={{ opacity: 0, x: 100 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2, duration: 0.5 }}>
-          <h2 className="text-2xl font-semibold text-slate-900 mb-4">Quick Actions</h2>
+          <h2 className="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-4">Quick Actions</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Link to="/learning-assistant">
               <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
-                <CardHeader>
+                <CardHeader className="pb-6">
                   <Sparkles className="w-8 h-8 text-indigo-600 mb-2" />
                   <CardTitle>Learning Assistant</CardTitle>
-                  <CardDescription className="pt-0 pb-[10px]">Get personalized learning recommendations</CardDescription>
+                  <CardDescription className="pt-0">Get personalized learning recommendations</CardDescription>
                 </CardHeader>
               </Card>
             </Link>
             <Link to="/dashboard">
               <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
-                <CardHeader>
+                <CardHeader className="pb-6">
                   <Calendar className="w-8 h-8 text-purple-600 mb-2" />
                   <CardTitle>Campus Events</CardTitle>
                   <CardDescription>View upcoming events and activities</CardDescription>
@@ -261,7 +261,7 @@ export default function HomePage() {
             </Link>
             <Link to="/calibration">
               <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
-                <CardHeader>
+                <CardHeader className="pb-6">
                   <Brain className="w-8 h-8 text-indigo-600 mb-2" />
                   <CardTitle>ARIA Calibration</CardTitle>
                   <CardDescription>Measure what you know vs. what you think you know</CardDescription>
@@ -273,54 +273,54 @@ export default function HomePage() {
 
         {/* Stats Overview */}
         <motion.div initial={{ opacity: 0, x: 100 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3, duration: 0.5 }} className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card className="border-0 bg-[#ECF6F2] shadow-none">
+          <Card className="border-0 bg-[#ECF6F2] dark:bg-emerald-500/10 dark:border dark:border-emerald-500/25 shadow-none">
             <CardHeader className="pb-4 space-y-4">
-              <div className="flex items-center gap-2 text-sm font-medium text-slate-700">
+              <div className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-200">
                 <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-emerald-500/20 text-emerald-600">
                   <CheckCircle2 className="h-4 w-4" />
                 </span>
-                <CardDescription className="text-slate-700">Skills Unlocked</CardDescription>
+                <CardDescription className="text-slate-700 dark:text-slate-200">Skills Unlocked</CardDescription>
               </div>
-              <CardTitle className="text-5xl text-slate-900">{loaded ? stats.skillsUnlocked : "--"}</CardTitle>
+              <CardTitle className="text-5xl text-slate-900 dark:text-slate-100">{loaded ? stats.skillsUnlocked : "--"}</CardTitle>
             </CardHeader>
             <CardContent className="pt-0"><div className="h-1.5 w-16 rounded-full bg-emerald-500" /></CardContent>
           </Card>
 
-          <Card className="border-0 bg-[#F9EEEE] shadow-none">
+          <Card className="border-0 bg-[#F9EEEE] dark:bg-orange-500/10 dark:border dark:border-orange-500/25 shadow-none">
             <CardHeader className="pb-4 space-y-4">
-              <div className="flex items-center gap-2 text-sm font-medium text-slate-700">
+              <div className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-200">
                 <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-[#F28B54]/20 text-[#E7682F]">
                   <Zap className="h-4 w-4" />
                 </span>
-                <CardDescription className="text-slate-700">In Progress</CardDescription>
+                <CardDescription className="text-slate-700 dark:text-slate-200">In Progress</CardDescription>
               </div>
-              <CardTitle className="text-5xl text-slate-900">{loaded ? stats.skillsInProgress : "--"}</CardTitle>
+              <CardTitle className="text-5xl text-slate-900 dark:text-slate-100">{loaded ? stats.skillsInProgress : "--"}</CardTitle>
             </CardHeader>
             <CardContent className="pt-0"><div className="h-1.5 w-16 rounded-full bg-[#E7682F]" /></CardContent>
           </Card>
 
-          <Card className="border-0 bg-[#EEF4FB] shadow-none">
+          <Card className="border-0 bg-[#EEF4FB] dark:bg-blue-500/10 dark:border dark:border-blue-500/25 shadow-none">
             <CardHeader className="pb-4 space-y-4">
-              <div className="flex items-center gap-2 text-sm font-medium text-slate-700">
+              <div className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-200">
                 <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-blue-500/20 text-blue-600">
                   <Target className="h-4 w-4" />
                 </span>
-                <CardDescription className="text-slate-700">Available Next</CardDescription>
+                <CardDescription className="text-slate-700 dark:text-slate-200">Available Next</CardDescription>
               </div>
-              <CardTitle className="text-5xl text-slate-900">{loaded ? stats.skillsAvailable : "--"}</CardTitle>
+              <CardTitle className="text-5xl text-slate-900 dark:text-slate-100">{loaded ? stats.skillsAvailable : "--"}</CardTitle>
             </CardHeader>
             <CardContent className="pt-0"><div className="h-1.5 w-16 rounded-full bg-blue-600" /></CardContent>
           </Card>
 
-          <Card className="border-0 bg-[#F0F0FC] shadow-none">
+          <Card className="border-0 bg-[#F0F0FC] dark:bg-violet-500/10 dark:border dark:border-violet-500/25 shadow-none">
             <CardHeader className="pb-4 space-y-4">
-              <div className="flex items-center gap-2 text-sm font-medium text-slate-700">
+              <div className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-200">
                 <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-violet-500/20 text-violet-600">
                   <Calendar className="h-4 w-4" />
                 </span>
-                <CardDescription className="text-slate-700">Today's Events</CardDescription>
+                <CardDescription className="text-slate-700 dark:text-slate-200">Today's Events</CardDescription>
               </div>
-              <CardTitle className="text-5xl text-slate-900">{loaded ? stats.todayEvents : "--"}</CardTitle>
+              <CardTitle className="text-5xl text-slate-900 dark:text-slate-100">{loaded ? stats.todayEvents : "--"}</CardTitle>
             </CardHeader>
             <CardContent className="pt-0"><div className="h-1.5 w-16 rounded-full bg-violet-600" /></CardContent>
           </Card>

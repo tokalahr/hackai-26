@@ -27,17 +27,17 @@ type CourseItem = {
 const STORAGE_KEY = "dashboard-manual-courses";
 
 const TAG_COLORS: Record<string, string> = {
-  Fitness: "bg-green-100 text-green-700 border-green-300",
-  Academic: "bg-blue-100 text-blue-700 border-blue-300",
-  Workshop: "bg-purple-100 text-purple-700 border-purple-300",
-  Career: "bg-amber-100 text-amber-700 border-amber-300",
-  Social: "bg-pink-100 text-pink-700 border-pink-300",
-  Research: "bg-cyan-100 text-cyan-700 border-cyan-300",
-  Competition: "bg-orange-100 text-orange-700 border-orange-300",
-  Deadline: "bg-red-100 text-red-700 border-red-300",
-  Arts: "bg-violet-100 text-violet-700 border-violet-300",
-  Sports: "bg-emerald-100 text-emerald-700 border-emerald-300",
-  Other: "bg-slate-100 text-slate-600 border-slate-300",
+  Fitness: "bg-green-100 text-green-700 border-green-300 dark:bg-green-500/15 dark:text-green-300 dark:border-green-500/40",
+  Academic: "bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-500/15 dark:text-blue-300 dark:border-blue-500/40",
+  Workshop: "bg-purple-100 text-purple-700 border-purple-300 dark:bg-purple-500/15 dark:text-purple-300 dark:border-purple-500/40",
+  Career: "bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/40",
+  Social: "bg-pink-100 text-pink-700 border-pink-300 dark:bg-pink-500/15 dark:text-pink-300 dark:border-pink-500/40",
+  Research: "bg-cyan-100 text-cyan-700 border-cyan-300 dark:bg-cyan-500/15 dark:text-cyan-300 dark:border-cyan-500/40",
+  Competition: "bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-500/15 dark:text-orange-300 dark:border-orange-500/40",
+  Deadline: "bg-red-100 text-red-700 border-red-300 dark:bg-red-500/15 dark:text-red-300 dark:border-red-500/40",
+  Arts: "bg-violet-100 text-violet-700 border-violet-300 dark:bg-violet-500/15 dark:text-violet-300 dark:border-violet-500/40",
+  Sports: "bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/40",
+  Other: "bg-slate-100 text-slate-600 border-slate-300 dark:bg-slate-700/40 dark:text-slate-200 dark:border-slate-500/40",
 };
 
 const EVENT_COLORS: Record<string, string> = {
@@ -214,8 +214,8 @@ export default function DashboardPage() {
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <motion.div initial={{ opacity: 0, x: 100 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }} className="space-y-2">
-          <h1 className="text-4xl font-bold text-slate-900">Campus Dashboard</h1>
-          <p className="text-lg text-slate-600">Your campus events and course overview</p>
+          <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-100">Campus Dashboard</h1>
+          <p className="text-lg text-slate-600 dark:text-slate-300">Your campus events and course overview</p>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -234,10 +234,10 @@ export default function DashboardPage() {
                 {allTags.length > 0 && (
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
-                      <Tag className="w-4 h-4 text-slate-500" />
-                      <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Filter by tag</span>
+                      <Tag className="w-4 h-4 text-slate-500 dark:text-slate-300" />
+                      <span className="text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Filter by tag</span>
                       {activeTags.size > 0 && (
-                        <button onClick={clearTags} className="ml-auto flex items-center gap-1 text-xs text-slate-400 hover:text-slate-600 transition-colors">
+                        <button onClick={clearTags} className="ml-auto flex items-center gap-1 text-xs text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-200 transition-colors">
                           <X className="w-3 h-3" />
                           Clear
                         </button>
@@ -254,17 +254,17 @@ export default function DashboardPage() {
                             className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border transition-all ${
                               isActive
                                 ? TAG_COLORS[tag] || TAG_COLORS.Other
-                                : "bg-white text-slate-500 border-slate-200 hover:border-slate-300"
+                                : "bg-slate-50 text-slate-600 border-slate-200 hover:border-slate-300 dark:bg-slate-900 dark:text-slate-200 dark:border-slate-700 dark:hover:border-slate-500"
                             }`}
                           >
                             {tag}
-                            <span className={`text-[10px] ${isActive ? "opacity-70" : "text-slate-400"}`}>{count}</span>
+                            <span className={`text-[10px] ${isActive ? "opacity-70" : "text-slate-400 dark:text-slate-400"}`}>{count}</span>
                           </button>
                         );
                       })}
                     </div>
                     {activeTags.size > 0 && (
-                      <p className="text-xs text-slate-400">
+                      <p className="text-xs text-slate-400 dark:text-slate-400">
                         Showing {filteredEvents.length} of {events.length} events
                       </p>
                     )}
@@ -274,10 +274,10 @@ export default function DashboardPage() {
                 {/* Events list — scrollable */}
                 <div className="space-y-4 max-h-[520px] overflow-y-auto pr-1">
                   {isLoadingEvents && (
-                    <p className="text-sm text-slate-500">Loading current week events...</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">Loading current week events...</p>
                   )}
                   {!isLoadingEvents && filteredEvents.length === 0 && (
-                    <p className="text-sm text-slate-500">
+                    <p className="text-sm text-slate-500 dark:text-slate-400">
                       {activeTags.size > 0 ? "No events match the selected tags." : "No live events available."}
                     </p>
                   )}
@@ -287,7 +287,7 @@ export default function DashboardPage() {
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.05 * index }}
-                      className="flex gap-4 p-4 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors"
+                      className="flex gap-4 p-4 rounded-lg bg-slate-50 hover:bg-slate-100 dark:bg-slate-900/70 dark:hover:bg-slate-800 transition-colors"
                     >
                       <div className="flex-shrink-0">
                         <div className={`w-12 h-12 ${event.color} rounded-lg flex items-center justify-center`}>
@@ -295,13 +295,13 @@ export default function DashboardPage() {
                         </div>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-slate-900">{event.title}</h3>
+                        <h3 className="font-semibold text-slate-900 dark:text-slate-100">{event.title}</h3>
                         <div className="flex flex-col gap-1 mt-1">
-                          <div className="flex items-center gap-1 text-sm text-slate-600">
+                          <div className="flex items-center gap-1 text-sm text-slate-600 dark:text-slate-300">
                             <Clock className="w-3 h-3" />
                             <span>{event.date} at {event.time}</span>
                           </div>
-                          <div className="flex items-center gap-1 text-sm text-slate-600">
+                          <div className="flex items-center gap-1 text-sm text-slate-600 dark:text-slate-300">
                             <MapPin className="w-3 h-3" />
                             <span>{event.location}</span>
                           </div>
@@ -341,17 +341,17 @@ export default function DashboardPage() {
                   <Button type="button" onClick={addCourse}>Add Course</Button>
                 </div>
                 <div className="space-y-4">
-                  {courses.length === 0 && <p className="text-sm text-slate-500">No courses added yet.</p>}
+                  {courses.length === 0 && <p className="text-sm text-slate-500 dark:text-slate-400">No courses added yet.</p>}
                   {courses.map((course, index) => (
-                    <motion.div key={course.id} initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 * index }} className="p-4 rounded-lg border border-slate-200 hover:border-indigo-300 transition-colors">
+                    <motion.div key={course.id} initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 * index }} className="p-4 rounded-lg border border-slate-200 hover:border-indigo-300 dark:border-slate-700 dark:bg-slate-900/70 dark:hover:border-indigo-400 transition-colors">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <h3 className="font-semibold text-slate-900 mb-2">{course.code}</h3>
-                          <p className="text-sm text-slate-600">{course.note}</p>
+                          <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-2">{course.code}</h3>
+                          <p className="text-sm text-slate-600 dark:text-slate-300">{course.note}</p>
                         </div>
                         <div className="flex-shrink-0 flex items-center gap-2">
                           <Button type="button" variant="ghost" size="sm" onClick={() => removeCourse(course.id)}>Remove</Button>
-                          <Award className="w-5 h-5 text-slate-400" />
+                          <Award className="w-5 h-5 text-slate-400 dark:text-slate-500" />
                         </div>
                       </div>
                     </motion.div>
@@ -365,7 +365,7 @@ export default function DashboardPage() {
         {/* Additional Stats */}
         <motion.div initial={{ opacity: 0, x: 100 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3, duration: 0.5 }} className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card>
-            <CardHeader>
+            <CardHeader className="pb-6">
               <div className="flex items-center gap-3">
                 <div className="p-3 bg-indigo-100 rounded-lg"><Users className="w-6 h-6 text-indigo-600" /></div>
                 <div><CardDescription>This Week's Events</CardDescription><CardTitle className="text-2xl">{events.length}</CardTitle></div>
@@ -373,7 +373,7 @@ export default function DashboardPage() {
             </CardHeader>
           </Card>
           <Card>
-            <CardHeader>
+            <CardHeader className="pb-6">
               <div className="flex items-center gap-3">
                 <div className="p-3 bg-purple-100 rounded-lg"><BookOpen className="w-6 h-6 text-purple-600" /></div>
                 <div><CardDescription>Enrolled Courses</CardDescription><CardTitle className="text-2xl">{courses.length}</CardTitle></div>
@@ -381,7 +381,7 @@ export default function DashboardPage() {
             </CardHeader>
           </Card>
           <Card>
-            <CardHeader>
+            <CardHeader className="pb-6">
               <div className="flex items-center gap-3">
                 <div className="p-3 bg-green-100 rounded-lg"><Tag className="w-6 h-6 text-green-600" /></div>
                 <div><CardDescription>Event Categories</CardDescription><CardTitle className="text-2xl">{allTags.length}</CardTitle></div>

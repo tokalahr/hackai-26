@@ -210,10 +210,10 @@ async function generateTopicQuestion(
 /* ------------------------------------------------------------------ */
 
 const STATE_COLORS: Record<string, { bg: string; text: string; border: string }> = {
-  unlocked: { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-300" },
-  in_progress: { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-300" },
-  available_next: { bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-300" },
-  locked: { bg: "bg-slate-50", text: "text-slate-400", border: "border-slate-200" },
+  unlocked: { bg: "bg-emerald-50 dark:bg-emerald-500/10", text: "text-emerald-700 dark:text-emerald-300", border: "border-emerald-300 dark:border-emerald-500/40" },
+  in_progress: { bg: "bg-amber-50 dark:bg-amber-500/10", text: "text-amber-700 dark:text-amber-300", border: "border-amber-300 dark:border-amber-500/40" },
+  available_next: { bg: "bg-blue-50 dark:bg-blue-500/10", text: "text-blue-700 dark:text-blue-300", border: "border-blue-300 dark:border-blue-500/40" },
+  locked: { bg: "bg-slate-50 dark:bg-slate-800/80", text: "text-slate-500 dark:text-slate-300", border: "border-slate-200 dark:border-slate-700" },
 };
 
 const STATE_ICONS: Record<string, typeof CheckCircle2> = { unlocked: CheckCircle2, in_progress: Loader2, available_next: Unlock, locked: Lock };
@@ -248,20 +248,20 @@ function BlindspotCard({ blindspot }: { blindspot: AriaBlindspot }) {
   const impactPct = Math.round(blindspot.impact_score * 100);
   const urgencyPct = Math.round(blindspot.urgency_score * 100);
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-4 rounded-lg border border-amber-200 bg-amber-50/50">
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-4 rounded-lg border border-amber-200 bg-amber-50/50 dark:border-amber-500/30 dark:bg-amber-500/10">
       <div className="flex items-start gap-3">
         <div className="p-2 bg-amber-100 rounded-lg flex-shrink-0"><Eye className="w-5 h-5 text-amber-600" /></div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1 flex-wrap">
-            <span className="font-medium text-slate-900 text-sm">{cleanNodeLabel(blindspot.id)}</span>
+            <span className="font-medium text-slate-900 dark:text-slate-100 text-sm">{cleanNodeLabel(blindspot.id)}</span>
             <Badge variant="outline" className="text-xs capitalize">{blindspot.type}</Badge>
           </div>
-          <p className="text-sm text-slate-600 mb-2">{blindspot.reason}</p>
+          <p className="text-sm text-slate-600 dark:text-slate-300 mb-2">{blindspot.reason}</p>
           <div className="flex gap-3 mb-2">
-            <div className="flex items-center gap-1"><span className="text-xs text-slate-500">Impact:</span><div className="w-16 h-1.5 bg-slate-200 rounded-full overflow-hidden"><div className="h-full bg-purple-500 rounded-full" style={{ width: `${impactPct}%` }} /></div><span className="text-xs font-medium text-slate-600">{impactPct}%</span></div>
-            <div className="flex items-center gap-1"><span className="text-xs text-slate-500">Urgency:</span><div className="w-16 h-1.5 bg-slate-200 rounded-full overflow-hidden"><div className="h-full bg-red-500 rounded-full" style={{ width: `${urgencyPct}%` }} /></div><span className="text-xs font-medium text-slate-600">{urgencyPct}%</span></div>
+            <div className="flex items-center gap-1"><span className="text-xs text-slate-500 dark:text-slate-400">Impact:</span><div className="w-16 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden"><div className="h-full bg-purple-500 rounded-full" style={{ width: `${impactPct}%` }} /></div><span className="text-xs font-medium text-slate-600 dark:text-slate-300">{impactPct}%</span></div>
+            <div className="flex items-center gap-1"><span className="text-xs text-slate-500 dark:text-slate-400">Urgency:</span><div className="w-16 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden"><div className="h-full bg-red-500 rounded-full" style={{ width: `${urgencyPct}%` }} /></div><span className="text-xs font-medium text-slate-600 dark:text-slate-300">{urgencyPct}%</span></div>
           </div>
-          <div className="flex items-start gap-1 text-xs text-emerald-700 bg-emerald-50 p-2 rounded"><Rocket className="w-3 h-3 mt-0.5 flex-shrink-0" /><span>{blindspot.next_step}</span></div>
+          <div className="flex items-start gap-1 text-xs text-emerald-700 bg-emerald-50 p-2 rounded dark:text-emerald-300 dark:bg-emerald-500/10"><Rocket className="w-3 h-3 mt-0.5 flex-shrink-0" /><span>{blindspot.next_step}</span></div>
         </div>
       </div>
     </motion.div>
@@ -269,11 +269,11 @@ function BlindspotCard({ blindspot }: { blindspot: AriaBlindspot }) {
 }
 
 function RecommendationCard({ item, icon: Icon }: { item: AriaRecommendationItem; icon: typeof Zap }) {
-  return (<motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="p-3 rounded-lg border border-slate-200 bg-white hover:border-indigo-300 transition-colors"><div className="flex items-start gap-2"><Icon className="w-4 h-4 text-indigo-600 mt-0.5 flex-shrink-0" /><div><span className="text-sm font-medium text-slate-900">{item.label}</span><p className="text-xs text-slate-500 mt-0.5">{item.reason}</p></div></div></motion.div>);
+  return (<motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="p-3 rounded-lg border border-slate-200 bg-slate-50 hover:border-indigo-300 dark:border-slate-700 dark:bg-slate-900/70 dark:hover:border-indigo-400 transition-colors"><div className="flex items-start gap-2"><Icon className="w-4 h-4 text-indigo-600 mt-0.5 flex-shrink-0" /><div><span className="text-sm font-medium text-slate-900 dark:text-slate-100">{item.label}</span><p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{item.reason}</p></div></div></motion.div>);
 }
 
 function ProjectCard({ project }: { project: AriaProject }) {
-  return (<motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="p-3 rounded-lg border border-slate-200 bg-white"><div className="flex items-start gap-2"><Rocket className="w-4 h-4 text-purple-600 mt-0.5 flex-shrink-0" /><div><span className="text-sm font-medium text-slate-900">{project.title}</span><p className="text-xs text-slate-500 mt-0.5">{project.reason}</p><div className="flex flex-wrap gap-1 mt-1">{project.skills.map((s) => <Badge key={s} variant="secondary" className="text-xs">{s}</Badge>)}</div></div></div></motion.div>);
+  return (<motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="p-3 rounded-lg border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-900/70"><div className="flex items-start gap-2"><Rocket className="w-4 h-4 text-purple-600 mt-0.5 flex-shrink-0" /><div><span className="text-sm font-medium text-slate-900 dark:text-slate-100">{project.title}</span><p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{project.reason}</p><div className="flex flex-wrap gap-1 mt-1">{project.skills.map((s) => <Badge key={s} variant="secondary" className="text-xs">{s}</Badge>)}</div></div></div></motion.div>);
 }
 
 /* ------------------------------------------------------------------ */
@@ -472,8 +472,8 @@ export default function SkillLearnerPage() {
           <div className="flex items-center gap-3">
             <div className="p-3 bg-indigo-100 rounded-lg"><Network className="w-8 h-8 text-indigo-600" /></div>
             <div>
-              <h1 className="text-4xl font-bold text-slate-900">ARIA Skill Learner</h1>
-              <p className="text-lg text-slate-600">Your personalized Academic Knowledge Graph — see what you know, what you're missing, and what to learn next.</p>
+              <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-100">ARIA Skill Learner</h1>
+              <p className="text-lg text-slate-600 dark:text-slate-300">Your personalized Academic Knowledge Graph — see what you know, what you're missing, and what to learn next.</p>
             </div>
           </div>
         </motion.div>
@@ -491,13 +491,13 @@ export default function SkillLearnerPage() {
                 {(["unlocked", "in_progress", "available_next", "locked"] as const).map((state) => {
                   const icons = { unlocked: CheckCircle2, in_progress: Loader2, available_next: Unlock, locked: Lock };
                   const colors = { unlocked: "text-emerald-600", in_progress: "text-amber-600", available_next: "text-blue-600", locked: "text-slate-400" };
-                  const borders = { unlocked: "border-emerald-400 bg-emerald-50", in_progress: "border-amber-400 bg-amber-50", available_next: "border-blue-400 bg-blue-50", locked: "border-slate-400 bg-slate-50" };
+                  const borders = { unlocked: "border-emerald-400 bg-emerald-50 dark:border-emerald-500/40 dark:bg-emerald-500/10", in_progress: "border-amber-400 bg-amber-50 dark:border-amber-500/40 dark:bg-amber-500/10", available_next: "border-blue-400 bg-blue-50 dark:border-blue-500/40 dark:bg-blue-500/10", locked: "border-slate-400 bg-slate-50 dark:border-slate-600 dark:bg-slate-800/80" };
                   const labels = { unlocked: "Unlocked", in_progress: "In Progress", available_next: "Available Next", locked: "Locked" };
                   const Icon = icons[state];
                   return (
-                    <div key={state} className={`p-3 rounded-lg border cursor-pointer transition-colors ${filterState === state ? borders[state] : "border-slate-200"}`} onClick={() => setFilterState(filterState === state ? null : state)}>
+                    <div key={state} className={`p-3 rounded-lg border cursor-pointer transition-colors ${filterState === state ? borders[state] : "border-slate-200 dark:border-slate-700 dark:bg-slate-900/40"}`} onClick={() => setFilterState(filterState === state ? null : state)}>
                       <div className="flex items-center gap-2"><Icon className={`w-4 h-4 ${colors[state]}`} /><span className={`text-2xl font-bold ${colors[state]}`}>{stateCounts[state]}</span></div>
-                      <p className="text-xs text-slate-500 mt-1">{labels[state]}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{labels[state]}</p>
                     </div>
                   );
                 })}
@@ -517,15 +517,15 @@ export default function SkillLearnerPage() {
           className="space-y-8"
         >
 
-        {loading && (<div className="flex items-center justify-center py-12"><div className="flex flex-col items-center gap-3"><svg className="animate-spin h-10 w-10 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg><p className="text-slate-600 font-medium">Building your ARIA knowledge graph...</p></div></div>)}
+        {loading && (<div className="flex items-center justify-center py-12"><div className="flex flex-col items-center gap-3"><svg className="animate-spin h-10 w-10 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg><p className="text-slate-600 dark:text-slate-300 font-medium">Building your ARIA knowledge graph...</p></div></div>)}
         {error && (<Card className="border-red-200 bg-red-50"><CardContent className="p-4"><div className="flex items-center gap-2 text-red-700"><AlertTriangle className="w-5 h-5" /><span className="font-medium">Error loading graph: {error}</span></div></CardContent></Card>)}
 
         {ariaData && !loading && (
           <>
             {/* Skill Tree — view toggle */}
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2"><Network className="w-5 h-5 text-indigo-600" /><h2 className="text-xl font-semibold text-slate-900">Skill Tree</h2><span className="text-sm text-slate-500">{ariaData.skillTree.nodes.length} nodes · {ariaData.skillTree.edges.length} edges</span></div>
-              <div className="flex gap-1 bg-slate-100 rounded-lg p-1">
+              <div className="flex items-center gap-2"><Network className="w-5 h-5 text-indigo-600" /><h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Skill Tree</h2><span className="text-sm text-slate-500 dark:text-slate-400">{ariaData.skillTree.nodes.length} nodes · {ariaData.skillTree.edges.length} edges</span></div>
+              <div className="flex gap-1 bg-slate-100 dark:bg-slate-800 rounded-lg p-1">
                 <Button variant={viewMode === "graph" ? "default" : "ghost"} size="sm" onClick={() => setViewMode("graph")}><Network className="w-4 h-4 mr-1" />Graph</Button>
                 <Button variant={viewMode === "list" ? "default" : "ghost"} size="sm" onClick={() => setViewMode("list")}><LayoutGrid className="w-4 h-4 mr-1" />List</Button>
               </div>
@@ -558,7 +558,7 @@ export default function SkillLearnerPage() {
             </div>
 
             {/* Raw JSON */}
-            <Card><CardHeader><CardTitle className="text-sm text-slate-500">Raw ARIA Output (JSON)</CardTitle></CardHeader><CardContent><details><summary className="cursor-pointer text-xs text-slate-400 hover:text-slate-600">Expand to see full JSON response</summary><pre className="mt-2 text-xs bg-slate-50 p-4 rounded-lg overflow-auto max-h-96 border border-slate-200">{JSON.stringify(ariaData, null, 2)}</pre></details></CardContent></Card>
+            <Card><CardHeader><CardTitle className="text-sm text-slate-500 dark:text-slate-400">Raw ARIA Output (JSON)</CardTitle></CardHeader><CardContent><details><summary className="cursor-pointer text-xs text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300">Expand to see full JSON response</summary><pre className="mt-2 text-xs bg-slate-50 dark:bg-slate-950 p-4 rounded-lg overflow-auto max-h-96 border border-slate-200 dark:border-slate-700">{JSON.stringify(ariaData, null, 2)}</pre></details></CardContent></Card>
           </>
         )}
 
@@ -584,21 +584,21 @@ export default function SkillLearnerPage() {
               </CardContent>
             </Card>
 
-            {selectedFocus && isGeneratingQuestion && (<Card><CardContent className="py-8"><p className="text-sm text-slate-600">Generating a topic-specific question...</p></CardContent></Card>)}
+            {selectedFocus && isGeneratingQuestion && (<Card><CardContent className="py-8"><p className="text-sm text-slate-600 dark:text-slate-300">Generating a topic-specific question...</p></CardContent></Card>)}
 
             {selectedFocus && currentQuestion && !isGeneratingQuestion && (
               <Card>
                 <CardHeader><CardTitle>{currentQuestion.topic}</CardTitle><CardDescription>{currentQuestion.prompt}</CardDescription></CardHeader>
                 <CardContent className="space-y-3">
                   <div className="flex flex-wrap gap-2"><Badge>{currentQuestion.levelLabel}</Badge><Badge variant="secondary">Focus answered: {answersForFocus.length}</Badge><Badge variant="secondary">Focus correct: {correctForFocus}</Badge></div>
-                  {currentQuestion.options.map((option, index) => (<button key={`${currentQuestion.id}-${index}`} type="button" onClick={() => setSelectedIndex(index)} className={`w-full text-left p-3 rounded-lg border transition-colors ${selectedIndex === index ? "border-indigo-500 bg-indigo-50" : "border-slate-200 hover:border-indigo-300"}`}>{option}</button>))}
+                  {currentQuestion.options.map((option, index) => (<button key={`${currentQuestion.id}-${index}`} type="button" onClick={() => setSelectedIndex(index)} className={`w-full text-left p-3 rounded-lg border transition-colors ${selectedIndex === index ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-500/20" : "border-slate-200 hover:border-indigo-300 dark:border-slate-700 dark:hover:border-indigo-400"}`}>{option}</button>))}
                   {!showResult ? (
                     <Button type="button" onClick={submitAnswer} disabled={selectedIndex === null}>Submit Answer</Button>
                   ) : (
                     <div className="space-y-3">
-                      <div className="flex items-start gap-2 p-3 rounded-lg bg-slate-50 border border-slate-200">
+                      <div className="flex items-start gap-2 p-3 rounded-lg bg-slate-50 border border-slate-200 dark:bg-slate-900 dark:border-slate-700">
                         {selectedIndex === currentQuestion.correctIndex ? <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5" /> : <XCircle className="w-5 h-5 text-rose-600 mt-0.5" />}
-                        <div><p className="font-medium text-slate-900">{selectedIndex === currentQuestion.correctIndex ? "Correct" : "Not quite"}</p><p className="text-sm text-slate-600">{currentQuestion.explanation}</p></div>
+                        <div><p className="font-medium text-slate-900 dark:text-slate-100">{selectedIndex === currentQuestion.correctIndex ? "Correct" : "Not quite"}</p><p className="text-sm text-slate-600 dark:text-slate-300">{currentQuestion.explanation}</p></div>
                       </div>
                       <Button type="button" onClick={nextQuestion}>Next Question</Button>
                     </div>

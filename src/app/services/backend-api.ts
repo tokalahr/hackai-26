@@ -23,7 +23,7 @@ export type NebulaSection = {
 };
 
 const viteEnv = (import.meta as unknown as { env?: Record<string, string> }).env;
-const API_BASE = (viteEnv?.VITE_API_BASE_URL || "http://localhost:5004").replace(/\/$/, "");
+const API_BASE = (viteEnv?.VITE_API_BASE_URL || "http://localhost:5000").replace(/\/$/, "");
 
 async function apiGet<T>(path: string, params?: Record<string, string | number | undefined>): Promise<T> {
   const url = new URL(`${API_BASE}${path}`);
@@ -91,4 +91,22 @@ export function parseCourseFromText(text: string): { subjectPrefix: string; cour
     subjectPrefix: match[1].toUpperCase(),
     courseNumber: match[2],
   };
+}
+
+// Fetch dashboard overview (progress, stats, etc.)
+export async function fetchDashboardOverview() {
+  // Adjust the endpoint as needed to match your backend
+  return apiGet<{
+    progress: number;
+    activeCourses: number;
+    dueThisWeek: number;
+    nextEvent: { name: string; time: string } | null;
+    recentBadge: { name: string; earnedAgo: string } | null;
+    stats: {
+      inProgress: number;
+      completed: number;
+      certificates: number;
+      communitySupport: number;
+    };
+  }>("/dashboard/overview");
 }

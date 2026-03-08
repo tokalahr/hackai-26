@@ -3,6 +3,7 @@ import requests
 import os
 from app.utils.nebula_client import nebula_get
 import re
+import json
 
 solve_bp = Blueprint("solve", __name__)
 
@@ -65,7 +66,7 @@ def solve():
     payload = {
         "model": "gpt-3.5-turbo",
         "messages": [{"role": "user", "content": query}],
-        "max_tokens": 100,
+        "max_tokens": 400,  # Increased for longer JSON responses
         "temperature": 0.7
     }
     headers = {
@@ -73,14 +74,38 @@ def solve():
         "Content-Type": "application/json"
     }
     try:
-        response = requests.post(llm_api_url, json=payload, headers=headers, timeout=15)
+        response = requests.post(llm_api_url, json=payload, headers=headers, timeout=30)
         if response.status_code != 200:
             print("OpenAI API Error:", response.status_code, response.text)
             return jsonify({"error": "Failed to process query with LLM", "details": response.text}), 500
         data = response.json()
-        # Defensive: ensure we always return a positive answer
         if "choices" in data and data["choices"]:
             answer = data["choices"][0]["message"]["content"].strip()
+            print("Raw LLM answer:", answer)  # Log for debugging
+            # If the prompt requests ONLY a JSON array, validate and extract it
+            if "Respond ONLY with a valid JSON array" in query:
+                # Try direct parse
+                try:
+                    parsed = json.loads(answer)
+                    if isinstance(parsed, list):
+                        return jsonify({"answer": json.dumps(parsed)})
+                except Exception:
+                    pass
+                # Try to extract the first array from the response (robust)
+                match = re.search(r"\[[^\]]*\](?=(?:[^\[]*\[[^\]]*\])*[^\[]*$)", answer, re.DOTALL)
+                if not match:
+                    # fallback: greedy match
+                    match = re.search(r"\[[\s\S]*\]", answer)
+                if match:
+                    try:
+                        parsed = json.loads(match.group(0))
+                        if isinstance(parsed, list):
+                            return jsonify({"answer": json.dumps(parsed)})
+                    except Exception:
+                        pass
+                # If not valid, return the raw answer for debugging
+                return jsonify({"answer": answer, "error": "AI response not valid JSON array"})
+            # Otherwise, return as normal chat
             if not answer:
                 answer = "I'm here to help! Please try rephrasing your question."
             return jsonify({"answer": answer})

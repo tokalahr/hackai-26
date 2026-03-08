@@ -63,6 +63,7 @@ export default function StudentRecommendationsPage() {
   const [nextSteps, setNextSteps] = useState<StudentStep[]>([]);
   const [focusAreas, setFocusAreas] = useState<string[]>([]);
   const [resources, setResources] = useState<StudentResource[]>([]);
+  const [loading, setLoading] = useState(true); // <-- loading state
 
   useEffect(() => {
     const savedData = sessionStorage.getItem("learningAssistantInput");
@@ -84,12 +85,14 @@ export default function StudentRecommendationsPage() {
 
   useEffect(() => {
     if (!inputData || inputData.userType !== "student") {
+      setLoading(false);
       return;
     }
 
     let active = true;
 
     const loadLiveRecommendations = async () => {
+      setLoading(true);
       try {
         const answer = await askBackendAssistant(
           `Create concise student recommendations for topic ${inputData.topic}, level ${inputData.currentLevel}, background ${inputData.background}.`,
@@ -99,7 +102,7 @@ export default function StudentRecommendationsPage() {
         }
 
         const stepsRaw = await askBackendAssistant(
-          `Return only JSON array with 4 objects {"title","description","duration"} for student next steps on ${inputData.topic} at level ${inputData.currentLevel}.`,
+          `Return only JSON array with 4 objects {"title","description","duration"} for student next steps on ${inputData.topic} at level ${inputData.currentLevel}. Respond ONLY with a valid JSON array.`,
         );
         const parsedSteps = parseJsonArray<{ title?: string; description?: string; duration?: string }>(stepsRaw);
         if (active && parsedSteps && parsedSteps.length > 0) {
@@ -114,7 +117,7 @@ export default function StudentRecommendationsPage() {
         }
 
         const focusRaw = await askBackendAssistant(
-          `Return only JSON array of 6 short focus areas for a student learning ${inputData.topic}.`,
+          `Return only JSON array of 6 short focus areas for a student learning ${inputData.topic}. Respond ONLY with a valid JSON array.`,
         );
         const parsedFocus = parseJsonArray<string>(focusRaw);
         if (active && parsedFocus && parsedFocus.length > 0) {
@@ -122,7 +125,7 @@ export default function StudentRecommendationsPage() {
         }
 
         const resourcesRaw = await askBackendAssistant(
-          `Return only JSON array with 4 objects {"title","type","description"} for student resources on ${inputData.topic}.`,
+          `Return only JSON array with 4 objects {"title","type","description"} for student resources on ${inputData.topic}. Respond ONLY with a valid JSON array.`,
         );
         const parsedResources = parseJsonArray<{ title?: string; type?: string; description?: string }>(resourcesRaw);
         if (active && parsedResources && parsedResources.length > 0) {
@@ -146,6 +149,8 @@ export default function StudentRecommendationsPage() {
         }
       } catch {
         // Keep static recommendation content when backend data is unavailable.
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -154,6 +159,20 @@ export default function StudentRecommendationsPage() {
       active = false;
     };
   }, [inputData]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <svg className="animate-spin h-10 w-10 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+          </svg>
+          <div className="text-lg text-slate-700 font-medium">Generating your recommendations...</div>
+        </div>
+      </div>
+    );
+  }
 
   if (hasError || !inputData) {
     return (

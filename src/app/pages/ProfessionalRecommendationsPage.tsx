@@ -77,6 +77,11 @@ export default function ProfessionalRecommendationsPage() {
   const [competencies, setCompetencies] = useState<Competency[]>([]);
   const [scenarios, setScenarios] = useState<Scenario[]>([]);
   const [resources, setResources] = useState<ProfessionalResource[]>([]);
+  const [loading, setLoading] = useState(true); // <-- loading state
+  const [roadmapRaw, setRoadmapRaw] = useState<string | null>(null);
+  const [competencyRaw, setCompetencyRaw] = useState<string | null>(null);
+  const [scenarioRaw, setScenarioRaw] = useState<string | null>(null);
+  const [resourcesRaw, setResourcesRaw] = useState<string | null>(null);
 
   useEffect(() => {
     const savedData = sessionStorage.getItem("learningAssistantInput");
@@ -98,29 +103,33 @@ export default function ProfessionalRecommendationsPage() {
 
   useEffect(() => {
     if (!inputData || inputData.userType !== "professional") {
+      setLoading(false);
       return;
     }
 
     let active = true;
 
     const loadLiveRecommendations = async () => {
+      setLoading(true);
       try {
+        // Use more specific, role-focused prompts for each section
         const answer = await askBackendAssistant(
-          `Create concise professional recommendations for topic ${inputData.topic}, level ${inputData.currentLevel}, background ${inputData.background}.`,
+          `You are a career coach AI. Give a concise, actionable professional development overview for a web developer with background: ${inputData.background}, current level: ${inputData.currentLevel}. Focus on top strategies for career advancement in ${inputData.topic}.`
         );
         if (active && answer) {
           setAssistantAnswer(answer);
         }
 
-        const roadmapRaw = await askBackendAssistant(
-          `Return only JSON array with 4 objects {"title","description","timeline","impact"} for a professional roadmap in ${inputData.topic}.`,
+        const roadmapRawResponse = await askBackendAssistant(
+          `You are a senior tech mentor. Return only a JSON array of 4 objects with keys {"title","description","timeline","impact"}. Each object is a top roadmap step for career advancement in ${inputData.topic} for a professional. Be specific and practical. Respond ONLY with a valid JSON array.`
         );
+        setRoadmapRaw(roadmapRawResponse);
         const parsedRoadmap = parseJsonArray<{
           title?: string;
           description?: string;
           timeline?: string;
           impact?: string;
-        }>(roadmapRaw);
+        }>(roadmapRawResponse);
         if (active && parsedRoadmap && parsedRoadmap.length > 0) {
           setRoadmapSteps(
             parsedRoadmap.slice(0, 4).map((step, index) => ({
@@ -133,10 +142,11 @@ export default function ProfessionalRecommendationsPage() {
           );
         }
 
-        const competencyRaw = await askBackendAssistant(
-          `Return only JSON array with 6 objects {"skill","level"} where level is 50-100 for professional competencies in ${inputData.topic}.`,
+        const competencyRawResponse = await askBackendAssistant(
+          `You are a tech hiring manager. Return only a JSON array of 6 objects {"skill","level"} (level 50-100) for the most in-demand professional competencies in ${inputData.topic}. Use real-world, up-to-date skills. Respond ONLY with a valid JSON array.`
         );
-        const parsedCompetencies = parseJsonArray<{ skill?: string; level?: number }>(competencyRaw);
+        setCompetencyRaw(competencyRawResponse);
+        const parsedCompetencies = parseJsonArray<{ skill?: string; level?: number }>(competencyRawResponse);
         if (active && parsedCompetencies && parsedCompetencies.length > 0) {
           setCompetencies(
             parsedCompetencies.slice(0, 6).map((entry, index) => ({
@@ -146,10 +156,11 @@ export default function ProfessionalRecommendationsPage() {
           );
         }
 
-        const scenarioRaw = await askBackendAssistant(
-          `Return only JSON array with 4 objects {"scenario","description","impact"} for workplace scenarios in ${inputData.topic}.`,
+        const scenarioRawResponse = await askBackendAssistant(
+          `You are a senior engineering manager. Return only a JSON array of 4 objects {"scenario","description","impact"} for the most relevant workplace application scenarios in ${inputData.topic}. Use real, modern examples. Respond ONLY with a valid JSON array.`
         );
-        const parsedScenarios = parseJsonArray<{ scenario?: string; description?: string; impact?: string }>(scenarioRaw);
+        setScenarioRaw(scenarioRawResponse);
+        const parsedScenarios = parseJsonArray<{ scenario?: string; description?: string; impact?: string }>(scenarioRawResponse);
         if (active && parsedScenarios && parsedScenarios.length > 0) {
           setScenarios(
             parsedScenarios.slice(0, 4).map((scenario, index) => ({
@@ -160,10 +171,11 @@ export default function ProfessionalRecommendationsPage() {
           );
         }
 
-        const resourcesRaw = await askBackendAssistant(
-          `Return only JSON array with 4 objects {"title","type","description"} for professional development resources in ${inputData.topic}.`,
+        const resourcesRawResponse = await askBackendAssistant(
+          `You are a professional development advisor. Return only a JSON array of 4 objects {"title","type","description"} for the best, most current professional development resources in ${inputData.topic}. Include top-rated books, courses, or sites. Respond ONLY with a valid JSON array.`
         );
-        const parsedResources = parseJsonArray<{ title?: string; type?: string; description?: string }>(resourcesRaw);
+        setResourcesRaw(resourcesRawResponse);
+        const parsedResources = parseJsonArray<{ title?: string; type?: string; description?: string }>(resourcesRawResponse);
         if (active && parsedResources && parsedResources.length > 0) {
           setResources(
             parsedResources.slice(0, 4).map((resource, index) => ({
@@ -185,6 +197,8 @@ export default function ProfessionalRecommendationsPage() {
         }
       } catch {
         // Keep static recommendation content when backend data is unavailable.
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -193,6 +207,20 @@ export default function ProfessionalRecommendationsPage() {
       active = false;
     };
   }, [inputData]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <svg className="animate-spin h-10 w-10 text-purple-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+          </svg>
+          <div className="text-lg text-slate-700 font-medium">Generating your recommendations...</div>
+        </div>
+      </div>
+    );
+  }
 
   if (hasError || !inputData) {
     return (
@@ -274,6 +302,16 @@ export default function ProfessionalRecommendationsPage() {
                   Related faculty from Nebula: <strong>{professorNames.join(", ")}</strong>
                 </p>
               )}
+              {/* Debug: Show raw backend responses for roadmap, competencies, scenarios, resources */}
+              <details className="mt-4 bg-slate-100 p-2 rounded border border-slate-200">
+                <summary className="cursor-pointer text-xs text-slate-500">Show raw backend responses (debug)</summary>
+                <div className="text-xs text-slate-600 mt-2">
+                  <div><strong>Roadmap Raw:</strong> {JSON.stringify(roadmapRaw)}</div>
+                  <div><strong>Competency Raw:</strong> {JSON.stringify(competencyRaw)}</div>
+                  <div><strong>Scenario Raw:</strong> {JSON.stringify(scenarioRaw)}</div>
+                  <div><strong>Resources Raw:</strong> {JSON.stringify(resourcesRaw)}</div>
+                </div>
+              </details>
             </CardContent>
           </Card>
         </motion.div>

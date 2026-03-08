@@ -3,7 +3,7 @@ import { Link } from "react-router";
 import { BarChart3, BookOpen, Calendar, CheckCircle2, TrendingUp, Trophy, Users, Sparkles } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import { Button } from "../components/ui/button";
-import dashboardPreviewImage from "figma:asset/c8fbaffa0a47973e9ca58a8bd06fc4b23895a2c5.png";
+import dashboardPreviewImage from "../../assets/c8fbaffa0a47973e9ca58a8bd06fc4b23895a2c5.png";
 
 export default function HomePage() {
   // Get learner name from session storage

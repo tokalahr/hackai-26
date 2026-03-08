@@ -21,6 +21,36 @@ type CourseItem = {
   courseLabel: string;
 };
 
+// Helper: get dates for the current week (Mon-Fri)
+function getCurrentWeekDates(): string[] {
+  const now = new Date();
+  const dayOfWeek = now.getDay(); // 0=Sun, 1=Mon, ...
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - ((dayOfWeek + 6) % 7)); // Go back to Monday
+  const dates: string[] = [];
+  for (let i = 0; i < 5; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    dates.push(d.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric", year: "numeric" }));
+  }
+  return dates;
+}
+
+function formatTime(raw?: string): string {
+  if (!raw) return "TBA";
+  // Try to parse "HH:MM" or "H:MMam/pm" style
+  const match = raw.match(/^(\d{1,2}):(\d{2})/);
+  if (match) {
+    let h = parseInt(match[1], 10);
+    const m = match[2];
+    const ampm = h >= 12 ? "PM" : "AM";
+    if (h > 12) h -= 12;
+    if (h === 0) h = 12;
+    return `${h}:${m} ${ampm}`;
+  }
+  return raw;
+}
+
 export default function DashboardPage() {
   const [events, setEvents] = useState<EventItem[]>([]);
   const [courses, setCourses] = useState<CourseItem[]>([]);
@@ -54,13 +84,15 @@ export default function DashboardPage() {
           return;
         }
 
+        const weekDates = getCurrentWeekDates();
+
         const mappedEvents = trendSections.slice(0, 5).map((section, index) => {
           const meeting = section.meetings?.[0];
           return {
             id: index + 1,
             title: `${first.subject_prefix} ${first.course_number} Section ${section.section_number ?? "N/A"}`,
-            date: meeting?.start_date || "Upcoming",
-            time: meeting?.start_time || "TBA",
+            date: weekDates[index % weekDates.length],
+            time: formatTime(meeting?.start_time) || "TBA",
             location: `${meeting?.location?.building || "Campus"} ${meeting?.location?.room || "TBD"}`,
             type: "Nebula Trend",
             color: "bg-indigo-500",

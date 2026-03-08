@@ -23,7 +23,7 @@ export type NebulaSection = {
 };
 
 const viteEnv = (import.meta as unknown as { env?: Record<string, string> }).env;
-const API_BASE = (viteEnv?.VITE_API_BASE_URL || "http://localhost:5000").replace(/\/$/, "");
+const API_BASE = (viteEnv?.VITE_API_BASE_URL || "http://localhost:5050").replace(/\/$/, "");
 
 async function apiGet<T>(path: string, params?: Record<string, string | number | undefined>): Promise<T> {
   const url = new URL(`${API_BASE}${path}`);

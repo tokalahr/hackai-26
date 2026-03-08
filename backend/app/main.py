@@ -22,7 +22,7 @@ from app.routes.trends import trends_bp
 from app.routes.overview import overview_bp
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": ["http://localhost:5173", "http://localhost:3000", "*"], "supports_credentials": True}})
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 # Register blueprints
 app.register_blueprint(solve_bp)

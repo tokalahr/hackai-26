@@ -1,0 +1,33 @@
+<svg width="420" height="96" viewBox="0 0 420 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="nyxNeonALight" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2ED3F6"/>
+      <stop offset="45%" stop-color="#3B6CFF"/>
+      <stop offset="100%" stop-color="#B34DFF"/>
+    </linearGradient>
+    <linearGradient id="nyxNeonBLight" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%" stop-color="#A05DFF"/>
+      <stop offset="60%" stop-color="#4D94FF"/>
+      <stop offset="100%" stop-color="#42DDF6"/>
+    </linearGradient>
+  </defs>
+
+  <g transform="translate(6,8)" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="16" y1="10" x2="16" y2="66" stroke="url(#nyxNeonALight)" stroke-width="5"/>
+    <line x1="16" y1="10" x2="60" y2="48" stroke="url(#nyxNeonALight)" stroke-width="5"/>
+    <line x1="60" y1="48" x2="60" y2="10" stroke="url(#nyxNeonBLight)" stroke-width="5"/>
+    <line x1="60" y1="48" x2="104" y2="66" stroke="url(#nyxNeonBLight)" stroke-width="5"/>
+    <line x1="104" y1="14" x2="104" y2="66" stroke="url(#nyxNeonALight)" stroke-width="5"/>
+
+    <circle cx="16" cy="10" r="5.5" fill="url(#nyxNeonBLight)"/>
+    <circle cx="16" cy="66" r="5.5" fill="url(#nyxNeonALight)"/>
+    <circle cx="60" cy="48" r="6" fill="#F8FAFF" stroke="url(#nyxNeonALight)" stroke-width="2"/>
+    <circle cx="60" cy="10" r="5.5" fill="url(#nyxNeonALight)"/>
+    <circle cx="104" cy="14" r="5.5" fill="url(#nyxNeonBLight)"/>
+    <circle cx="104" cy="66" r="5.5" fill="url(#nyxNeonALight)"/>
+  </g>
+
+  <text x="138" y="66" font-family="Poppins, Sora, Segoe UI, sans-serif" font-size="62" font-weight="700" fill="#0F172A" letter-spacing="0.2">Nyx</text>
+  <circle cx="289" cy="56" r="5.8" fill="#7C3AED"/>
+  <text x="303" y="66" font-family="Poppins, Sora, Segoe UI, sans-serif" font-size="62" font-weight="700" fill="#0F172A" letter-spacing="0.2">ai</text>
+</svg>

@@ -1,7 +1,9 @@
 import { Link, useLocation } from "react-router";
 import { useEffect, useState } from "react";
-import { GraduationCap, LayoutDashboard, Sun, Moon } from "lucide-react";
+import { LayoutDashboard, Sun, Moon } from "lucide-react";
 import { Button } from "./ui/button";
+import nyxLogoDark from "../../assets/nyx-logo-dark.svg";
+import nyxLogoLight from "../../assets/nyx-logo-light.svg";
 
 interface TopNavbarProps {
   isOpen: boolean;
@@ -53,9 +55,12 @@ export default function TopNavbar({ isOpen, setIsOpen }: TopNavbarProps) {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10" />
-            <Link to="/home" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <GraduationCap className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
-              <span className="font-semibold text-xl text-slate-900 dark:text-white">Nyx</span>
+            <Link to="/home" className="flex items-center hover:opacity-90 transition-opacity" aria-label="Nyx home">
+              <img
+                src={theme === "dark" ? nyxLogoDark : nyxLogoLight}
+                alt="Nyx.ai"
+                className="h-9 w-auto"
+              />
             </Link>
           </div>
           

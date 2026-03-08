@@ -62,7 +62,13 @@ type ProfessionalResource = {
   title: string;
   type: string;
   description: string;
+  url: string;
 };
+
+function buildSearchUrl(title: string, type: string): string {
+  const q = `${title} ${type}`.trim();
+  return `https://www.google.com/search?q=${encodeURIComponent(q)}`;
+}
 
 const PROFESSIONAL_CACHE_KEY = "professional-recommendations-cache";
 
@@ -238,17 +244,22 @@ export default function ProfessionalRecommendationsPage() {
         }
 
         const resourcesRawResponse = await askBackendAssistant(
-          `You are a professional development advisor. Return only a JSON array of 4 objects {"title","type","description"} for the best, most current professional development resources in ${inputData.topic}. Include top-rated books, courses, or sites. Respond ONLY with a valid JSON array.`
+          `You are a professional development advisor. Return only a JSON array of 4 objects {"title","type","description","url"} for the best, most current professional development resources in ${inputData.topic}. Include a real URL when possible. Respond ONLY with a valid JSON array.`
         );
         setResourcesRaw(resourcesRawResponse);
         latestResourcesRaw = resourcesRawResponse;
-        const parsedResources = parseJsonArray<{ title?: string; type?: string; description?: string }>(resourcesRawResponse);
+        const parsedResources = parseJsonArray<{ title?: string; type?: string; description?: string; url?: string }>(resourcesRawResponse);
         if (active && parsedResources && parsedResources.length > 0) {
-          const mappedResources = parsedResources.slice(0, 4).map((resource, index) => ({
-            title: resource.title || `Resource ${index + 1}`,
-            type: resource.type || "Professional",
-            description: resource.description || "Recommended career development material.",
-          }));
+          const mappedResources = parsedResources.slice(0, 4).map((resource, index) => {
+            const title = resource.title || `Resource ${index + 1}`;
+            const type = resource.type || "Professional";
+            return {
+              title,
+              type,
+              description: resource.description || "Recommended career development material.",
+              url: resource.url && resource.url.startsWith("http") ? resource.url : buildSearchUrl(title, type),
+            };
+          });
           setResources(mappedResources);
           latestResources = mappedResources;
         }
@@ -574,20 +585,26 @@ export default function ProfessionalRecommendationsPage() {
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.1 * index }}
-                    className="flex items-start justify-between p-4 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors cursor-pointer"
                   >
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h4 className="font-medium text-slate-900">
-                          {resource.title}
-                        </h4>
-                        <Badge variant="outline">{resource.type}</Badge>
+                    <a
+                      href={resource.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-start justify-between p-4 rounded-lg bg-slate-50 hover:bg-purple-50 hover:border-purple-200 border border-transparent transition-colors"
+                    >
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h4 className="font-medium text-slate-900">
+                            {resource.title}
+                          </h4>
+                          <Badge variant="outline">{resource.type}</Badge>
+                        </div>
+                        <p className="text-sm text-slate-600">
+                          {resource.description}
+                        </p>
                       </div>
-                      <p className="text-sm text-slate-600">
-                        {resource.description}
-                      </p>
-                    </div>
-                    <ExternalLink className="w-4 h-4 text-slate-400 flex-shrink-0 ml-2" />
+                      <ExternalLink className="w-4 h-4 text-purple-400 flex-shrink-0 ml-2 mt-0.5" />
+                    </a>
                   </motion.div>
                 ))}
               </div>

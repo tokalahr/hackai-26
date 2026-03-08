@@ -44,7 +44,13 @@ type StudentResource = {
   title: string;
   type: string;
   description: string;
+  url: string;
 };
+
+function buildSearchUrl(title: string, type: string): string {
+  const q = `${title} ${type}`.trim();
+  return `https://www.google.com/search?q=${encodeURIComponent(q)}`;
+}
 
 const STUDENT_CACHE_KEY = "student-recommendations-cache";
 
@@ -175,15 +181,20 @@ export default function StudentRecommendationsPage() {
         }
 
         const resourcesRaw = await askBackendAssistant(
-          `Return only JSON array with 4 objects {"title","type","description"} for student resources on ${inputData.topic}. Respond ONLY with a valid JSON array.`,
+          `Return only JSON array with 4 objects {"title","type","description","url"} for student resources on ${inputData.topic}. Include a real URL when possible. Respond ONLY with a valid JSON array.`,
         );
-        const parsedResources = parseJsonArray<{ title?: string; type?: string; description?: string }>(resourcesRaw);
+        const parsedResources = parseJsonArray<{ title?: string; type?: string; description?: string; url?: string }>(resourcesRaw);
         if (active && parsedResources && parsedResources.length > 0) {
-          const mappedResources = parsedResources.slice(0, 4).map((resource, index) => ({
-            title: resource.title || `Learning Resource ${index + 1}`,
-            type: resource.type || "Resource",
-            description: resource.description || "Recommended supporting material.",
-          }));
+          const mappedResources = parsedResources.slice(0, 4).map((resource, index) => {
+            const title = resource.title || `Learning Resource ${index + 1}`;
+            const type = resource.type || "Resource";
+            return {
+              title,
+              type,
+              description: resource.description || "Recommended supporting material.",
+              url: resource.url && resource.url.startsWith("http") ? resource.url : buildSearchUrl(title, type),
+            };
+          });
           setResources(mappedResources);
           latestResources = mappedResources;
         }
@@ -436,20 +447,26 @@ export default function StudentRecommendationsPage() {
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.1 * index }}
-                    className="flex items-start justify-between p-4 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors cursor-pointer"
                   >
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h4 className="font-medium text-slate-900">
-                          {resource.title}
-                        </h4>
-                        <Badge variant="outline">{resource.type}</Badge>
+                    <a
+                      href={resource.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-start justify-between p-4 rounded-lg bg-slate-50 hover:bg-indigo-50 hover:border-indigo-200 border border-transparent transition-colors"
+                    >
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h4 className="font-medium text-slate-900">
+                            {resource.title}
+                          </h4>
+                          <Badge variant="outline">{resource.type}</Badge>
+                        </div>
+                        <p className="text-sm text-slate-600">
+                          {resource.description}
+                        </p>
                       </div>
-                      <p className="text-sm text-slate-600">
-                        {resource.description}
-                      </p>
-                    </div>
-                    <ExternalLink className="w-4 h-4 text-slate-400 flex-shrink-0 ml-2" />
+                      <ExternalLink className="w-4 h-4 text-indigo-400 flex-shrink-0 ml-2 mt-0.5" />
+                    </a>
                   </motion.div>
                 ))}
               </div>

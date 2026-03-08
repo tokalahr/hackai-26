@@ -65,9 +65,10 @@ export default function HomePage() {
                       <span className="text-sm font-medium text-slate-600">Overall Progress</span>
                       <TrendingUp className="w-4 h-4 text-green-600" />
                     </div>
-                    <div className="text-2xl font-bold text-slate-900">72%</div>
+                    {/* TODO: Replace with dynamic progress data */}
+                    <div className="text-2xl font-bold text-slate-900">--</div>
                     <div className="w-full bg-slate-200 rounded-full h-2 mt-2">
-                      <div className="bg-indigo-600 h-2 rounded-full" style={{ width: '72%' }}></div>
+                      <div className="bg-indigo-600 h-2 rounded-full" style={{ width: '0%' }}></div>
                     </div>
                   </div>
 
@@ -77,8 +78,9 @@ export default function HomePage() {
                       <span className="text-sm font-medium text-slate-600">Active Courses</span>
                       <BookOpen className="w-4 h-4 text-blue-600" />
                     </div>
-                    <div className="text-2xl font-bold text-slate-900">18</div>
-                    <div className="text-sm text-slate-500 mt-1">5 due this week</div>
+                    {/* TODO: Replace with dynamic active courses count */}
+                    <div className="text-2xl font-bold text-slate-900">--</div>
+                    <div className="text-sm text-slate-500 mt-1">-- due this week</div>
                   </div>
 
                   {/* Upcoming Events */}
@@ -87,8 +89,9 @@ export default function HomePage() {
                       <span className="text-sm font-medium text-slate-600">Next Event</span>
                       <Calendar className="w-4 h-4 text-purple-600" />
                     </div>
-                    <div className="text-lg font-semibold text-slate-900">Workshop</div>
-                    <div className="text-sm text-slate-500">Tomorrow at 2 PM</div>
+                    {/* TODO: Replace with dynamic event info */}
+                    <div className="text-lg font-semibold text-slate-900">--</div>
+                    <div className="text-sm text-slate-500">--</div>
                   </div>
 
                   {/* Achievement */}
@@ -97,8 +100,9 @@ export default function HomePage() {
                       <span className="text-sm font-medium text-slate-600">Recent Badge</span>
                       <Sparkles className="w-4 h-4 text-yellow-600" />
                     </div>
-                    <div className="text-lg font-semibold text-slate-900">🏆 Star Learner</div>
-                    <div className="text-sm text-slate-500">Earned 2 days ago</div>
+                    {/* TODO: Replace with dynamic badge info */}
+                    <div className="text-lg font-semibold text-slate-900">--</div>
+                    <div className="text-sm text-slate-500">--</div>
                   </div>
                 </div>
               </div>
@@ -176,7 +180,8 @@ export default function HomePage() {
                 </span>
                 <CardDescription className="text-slate-700">Course in Progress</CardDescription>
               </div>
-              <CardTitle className="text-5xl text-slate-900">18</CardTitle>
+              {/* TODO: Replace with dynamic course in progress count */}
+              <CardTitle className="text-5xl text-slate-900">--</CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
               <div className="h-1.5 w-16 rounded-full bg-[#E7682F]" />
@@ -191,7 +196,8 @@ export default function HomePage() {
                 </span>
                 <CardDescription className="text-slate-700">Course Completed</CardDescription>
               </div>
-              <CardTitle className="text-5xl text-slate-900">23</CardTitle>
+              {/* TODO: Replace with dynamic course completed count */}
+              <CardTitle className="text-5xl text-slate-900">--</CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
               <div className="h-1.5 w-16 rounded-full bg-emerald-500" />
@@ -206,7 +212,8 @@ export default function HomePage() {
                 </span>
                 <CardDescription className="text-slate-700">Certificates Earned</CardDescription>
               </div>
-              <CardTitle className="text-5xl text-slate-900">15</CardTitle>
+              {/* TODO: Replace with dynamic certificates earned count */}
+              <CardTitle className="text-5xl text-slate-900">--</CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
               <div className="h-1.5 w-16 rounded-full bg-blue-600" />
@@ -221,7 +228,8 @@ export default function HomePage() {
                 </span>
                 <CardDescription className="text-slate-700">Community Support</CardDescription>
               </div>
-              <CardTitle className="text-5xl text-slate-900">87</CardTitle>
+              {/* TODO: Replace with dynamic community support count */}
+              <CardTitle className="text-5xl text-slate-900">--</CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
               <div className="h-1.5 w-16 rounded-full bg-violet-600" />

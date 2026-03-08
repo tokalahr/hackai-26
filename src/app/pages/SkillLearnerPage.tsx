@@ -26,6 +26,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
+<<<<<<< HEAD
 import SkillTreeGraph from "../components/SkillTreeGraph";
 import {
   fetchAriaGraph,
@@ -36,6 +37,9 @@ import {
   type AriaRecommendationItem,
   type AriaProject,
 } from "../services/backend-api";
+=======
+import { askBackendAssistant } from "../services/backend-api";
+>>>>>>> safe-nocursor
 
 type StudentCache = {
   nextSteps?: Array<{ title?: string; description?: string }>;
@@ -49,6 +53,36 @@ type ProfessionalCache = {
 
 type QuizTrack = "student" | "professional";
 
+<<<<<<< HEAD
+=======
+type QuizQuestion = {
+  id: string;
+  track: QuizTrack;
+  topic: string;
+  prompt: string;
+  options: string[];
+  correctIndex: number;
+  explanation: string;
+  levelLabel: string;
+};
+
+type AnswerRecord = {
+  questionId: string;
+  topic: string;
+  selectedIndex: number;
+  isCorrect: boolean;
+  prompt: string;
+  options: string[];
+};
+
+type AssistantQuestionPayload = {
+  prompt?: string;
+  options?: string[];
+  correctIndex?: number;
+  explanation?: string;
+};
+
+>>>>>>> safe-nocursor
 function readJson<T>(key: string): T | null {
   const raw = sessionStorage.getItem(key);
   if (!raw) return null;
@@ -88,6 +122,7 @@ function StateIcon({ state }: { state: string }) {
   return <Icon className={`w-4 h-4 ${colors.text}`} />;
 }
 
+<<<<<<< HEAD
 function TypeIcon({ type }: { type: string }) {
   const Icon = TYPE_ICONS[type] || Brain;
   return <Icon className="w-4 h-4" />;
@@ -231,6 +266,267 @@ function ProjectCard({ project }: { project: AriaProject }) {
       </div>
     </motion.div>
   );
+=======
+function parseJsonObject(text: string): AssistantQuestionPayload | null {
+  try {
+    return JSON.parse(text) as AssistantQuestionPayload;
+  } catch {
+    const match = text.match(/\{[\s\S]*\}/);
+    if (!match) {
+      return null;
+    }
+    try {
+      return JSON.parse(match[0]) as AssistantQuestionPayload;
+    } catch {
+      return null;
+    }
+  }
+}
+
+function getLevelLabel(focusHistory: AnswerRecord[]): string {
+  const last = focusHistory[focusHistory.length - 1];
+  if (last && !last.isCorrect) {
+    return "Reinforcement";
+  }
+  const correctCount = focusHistory.filter((item) => item.isCorrect).length;
+  if (correctCount === 0) {
+    return "Foundation";
+  }
+  if (correctCount === 1) {
+    return "Application";
+  }
+  if (correctCount === 2) {
+    return "Synthesis";
+  }
+  return "Mastery";
+}
+
+function fallbackQuestion(
+  track: QuizTrack,
+  topic: string,
+  levelLabel: string,
+  questionIndex: number,
+  needsReview: boolean,
+): QuizQuestion {
+  const focus = topic || "Selected Topic";
+
+  const foundationBank = [
+    {
+      prompt: `Which statement best describes a core concept of ${focus}?`,
+      options: [
+        `${focus} primarily concerns random memorization without context.`,
+        `${focus} focuses on foundational principles and how they connect in practice.`,
+        `${focus} is only useful for advanced edge cases and not fundamentals.`,
+      ],
+      correctIndex: 1,
+      explanation: `${focus} starts with core principles and practical connections, not isolated memorization.`,
+    },
+    {
+      prompt: `What is the strongest first-principles approach to ${focus}?`,
+      options: [
+        `Identify the base model of ${focus}, then test it with a simple scenario.`,
+        `Skip models and rely only on final answers for ${focus}.`,
+        `Treat ${focus} as a fixed checklist with no reasoning.`,
+      ],
+      correctIndex: 0,
+      explanation: `Understanding and testing the underlying model gives durable ${focus} knowledge.`,
+    },
+  ];
+
+  const applicationBank = [
+    {
+      prompt: `In a practical task, what is the best way to apply ${focus}?`,
+      options: [
+        `Select an approach, justify why it fits, then validate with output checks.`,
+        `Use the same method every time regardless of context.`,
+        `Prioritize speed over correctness when applying ${focus}.`,
+      ],
+      correctIndex: 0,
+      explanation: `${focus} application requires context-aware method choice and validation.`,
+    },
+    {
+      prompt: `You must solve a real problem with ${focus}. What should you do first?`,
+      options: [
+        `Define constraints and success criteria before choosing a technique.`,
+        `Jump to implementation and infer constraints later.`,
+        `Avoid measurement and rely on intuition only.`,
+      ],
+      correctIndex: 0,
+      explanation: `Clear constraints improve accuracy and decision quality in ${focus}.`,
+    },
+  ];
+
+  const synthesisBank = [
+    {
+      prompt: `Which choice shows deeper synthesis in ${focus}?`,
+      options: [
+        `Compare two valid approaches in ${focus} and explain tradeoffs.`,
+        `Use one preferred approach and ignore alternatives.`,
+        `Pick the fastest approach without evaluating quality.`,
+      ],
+      correctIndex: 0,
+      explanation: `Synthesis in ${focus} means reasoning across alternatives and tradeoffs.`,
+    },
+    {
+      prompt: `How do you demonstrate strategic thinking in ${focus}?`,
+      options: [
+        `Connect design decisions in ${focus} to downstream impact and risk.`,
+        `Treat each decision in ${focus} as independent and isolated.`,
+        `Optimize one metric in ${focus} while ignoring all side effects.`,
+      ],
+      correctIndex: 0,
+      explanation: `High-level ${focus} proficiency includes system-level consequence analysis.`,
+    },
+  ];
+
+  const masteryBank = [
+    {
+      prompt: `What best indicates mastery of ${focus}?`,
+      options: [
+        `You can explain, adapt, and troubleshoot ${focus} under changing constraints.`,
+        `You can solve only familiar versions of ${focus} problems.`,
+        `You remember terminology for ${focus} but cannot apply it.`,
+      ],
+      correctIndex: 0,
+      explanation: `Mastery is adaptive performance, not only recognition or recall.`,
+    },
+    {
+      prompt: `A mastery-level checkpoint for ${focus} is:`,
+      options: [
+        `Design a robust solution in ${focus} and defend decisions with evidence.`,
+        `Avoid explaining why your ${focus} solution works.`,
+        `Depend on one memorized pattern for all ${focus} tasks.`,
+      ],
+      correctIndex: 0,
+      explanation: `Evidence-backed decisions and adaptability mark true ${focus} mastery.`,
+    },
+  ];
+
+  const reinforcementBank = [
+    {
+      prompt: `You missed the previous ${focus} question. Which follow-up is best?`,
+      options: [
+        `Retry a similar ${focus} concept with a new scenario and verify each step.`,
+        `Switch to a different topic and skip ${focus} remediation.`,
+        `Repeat the same mistake pattern in ${focus} without checking assumptions.`,
+      ],
+      correctIndex: 0,
+      explanation: `A similar but re-framed ${focus} scenario helps repair misconceptions.`,
+    },
+    {
+      prompt: `For ${focus} reinforcement, what should you prioritize now?`,
+      options: [
+        `Rebuild the concept with a different example and compare with your last answer.`,
+        `Memorize the previous answer choice without reasoning.`,
+        `Increase difficulty before fixing the core ${focus} mistake.`,
+      ],
+      correctIndex: 0,
+      explanation: `Reinforcement works best when the same concept is tested through a new lens.`,
+    },
+  ];
+
+  const bank = needsReview
+    ? reinforcementBank
+    : levelLabel === "Application"
+      ? applicationBank
+      : levelLabel === "Synthesis"
+        ? synthesisBank
+        : levelLabel === "Mastery"
+          ? masteryBank
+          : foundationBank;
+
+  const picked = bank[questionIndex % bank.length];
+
+  return {
+    id: `${track}-${focus}-${questionIndex}-fallback`,
+    track,
+    topic: focus,
+    prompt: picked.prompt,
+    options: picked.options,
+    correctIndex: picked.correctIndex,
+    explanation: picked.explanation,
+    levelLabel,
+  };
+>>>>>>> safe-nocursor
+}
+
+async function generateTopicQuestion(
+  track: QuizTrack,
+  topic: string,
+  questionIndex: number,
+  focusHistory: AnswerRecord[],
+): Promise<QuizQuestion> {
+  const safeTopic = topic || "Selected Topic";
+  const lastAnswer = focusHistory[focusHistory.length - 1];
+  const needsReview = Boolean(lastAnswer && !lastAnswer.isCorrect);
+  const levelLabel = getLevelLabel(focusHistory);
+
+  const historySummary = focusHistory
+    .slice(-3)
+    .map((item, idx) => {
+      const outcome = item.isCorrect ? "correct" : "incorrect";
+      return `Q${idx + 1}: ${item.prompt} | selected="${item.options[item.selectedIndex] || ""}" | ${outcome}`;
+    })
+    .join("\n");
+
+  const previousQuestionContext = lastAnswer
+    ? `Previous question prompt: ${lastAnswer.prompt}\nPrevious options: ${lastAnswer.options.join(" | ")}`
+    : "No previous question for this focus yet.";
+
+  const remediationRule = needsReview
+    ? "The learner got the previous question wrong. Generate a similar concept question about the SAME topic, but with different wording and different options from the previous question."
+    : "Generate the next progressive question for this topic knowledge level.";
+
+  const prompt = [
+    "Return ONLY a valid JSON object with keys: prompt, options, correctIndex, explanation.",
+    "This must be a knowledge question ABOUT THE TOPIC ITSELF, not about study habits or learning strategy.",
+    `Track: ${track}.`,
+    `Topic: ${safeTopic}.`,
+    `Target difficulty level: ${levelLabel}.`,
+    remediationRule,
+    previousQuestionContext,
+    `Recent answer history:\n${historySummary || "None"}`,
+    "Rules:",
+    "- options must have at least 2 items (prefer 3 or 4).",
+    "- exactly one correct answer.",
+    "- correctIndex must be a valid zero-based index.",
+    "- explanation must be concise and topic-specific.",
+  ].join("\n\n");
+
+  try {
+    const response = await askBackendAssistant(prompt);
+    const parsed = parseJsonObject(response);
+
+    if (!parsed?.prompt || !Array.isArray(parsed.options) || parsed.options.length < 2) {
+      return fallbackQuestion(track, safeTopic, levelLabel, questionIndex, needsReview);
+    }
+
+    const options = parsed.options.map((opt) => String(opt).trim()).filter(Boolean);
+    if (options.length < 2) {
+      return fallbackQuestion(track, safeTopic, levelLabel, questionIndex, needsReview);
+    }
+
+    let correctIndex = Number(parsed.correctIndex);
+    if (!Number.isInteger(correctIndex) || correctIndex < 0 || correctIndex >= options.length) {
+      correctIndex = 0;
+    }
+
+    const safePrompt = String(parsed.prompt).trim();
+    const safeExplanation = String(parsed.explanation || "Review this concept and compare your choice with the correct option.").trim();
+
+    return {
+      id: `${track}-${safeTopic}-${questionIndex}-${Date.now()}`,
+      track,
+      topic: safeTopic,
+      prompt: safePrompt,
+      options,
+      correctIndex,
+      explanation: safeExplanation,
+      levelLabel,
+    };
+  } catch {
+    return fallbackQuestion(track, safeTopic, levelLabel, questionIndex, needsReview);
+  }
 }
 
 export default function SkillLearnerPage() {
@@ -243,6 +539,7 @@ export default function SkillLearnerPage() {
   const initialTrack: QuizTrack = requestedTrack === "professional" ? "professional" : "student";
 
   const [activeTrack, setActiveTrack] = useState<QuizTrack>(initialTrack);
+<<<<<<< HEAD
   const [ariaData, setAriaData] = useState<AriaGraphResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -251,6 +548,18 @@ export default function SkillLearnerPage() {
   const [filterType, setFilterType] = useState<string | null>(null);
   const [fetchKey, setFetchKey] = useState(0);
   const [viewMode, setViewMode] = useState<"graph" | "list">("graph");
+=======
+  const [selectedFocus, setSelectedFocus] = useState<string | null>(null);
+  const [focusSelectorOpen, setFocusSelectorOpen] = useState(true);
+  const [questionIndex, setQuestionIndex] = useState(0);
+  const [currentQuestion, setCurrentQuestion] = useState<QuizQuestion | null>(null);
+  const [answers, setAnswers] = useState<AnswerRecord[]>([]);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [showResult, setShowResult] = useState(false);
+  const [isGeneratingQuestion, setIsGeneratingQuestion] = useState(false);
+
+  const topics = activeTrack === "student" ? studentTopics : professionalTopics;
+>>>>>>> safe-nocursor
 
   useEffect(() => {
     if (hasStudentTrack && !hasProfessionalTrack) {
@@ -305,6 +614,7 @@ export default function SkillLearnerPage() {
       });
     }
 
+<<<<<<< HEAD
     const interests = topic ? [topic] : [];
     if (background) {
       background
@@ -345,6 +655,29 @@ export default function SkillLearnerPage() {
     // Only re-fetch when the track changes or an explicit refresh is requested
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTrack, fetchKey]);
+=======
+    let active = true;
+    const focusHistory = answers.filter((answer) => answer.topic === selectedFocus);
+
+    const buildQuestion = async () => {
+      setIsGeneratingQuestion(true);
+      const generated = await generateTopicQuestion(activeTrack, selectedFocus, questionIndex, focusHistory);
+      if (!active) {
+        return;
+      }
+      setCurrentQuestion(generated);
+      setSelectedIndex(null);
+      setShowResult(false);
+      setIsGeneratingQuestion(false);
+    };
+
+    void buildQuestion();
+
+    return () => {
+      active = false;
+    };
+  }, [activeTrack, selectedFocus, questionIndex, answers]);
+>>>>>>> safe-nocursor
 
   const switchTrack = (next: QuizTrack) => {
     setActiveTrack(next);
@@ -371,6 +704,7 @@ export default function SkillLearnerPage() {
 
   const displayedNodes = showAllNodes ? filteredNodes : filteredNodes.slice(0, 24);
 
+<<<<<<< HEAD
   const stateCounts = useMemo(() => {
     if (!ariaData) return { unlocked: 0, in_progress: 0, available_next: 0, locked: 0 };
     const counts: Record<string, number> = { unlocked: 0, in_progress: 0, available_next: 0, locked: 0 };
@@ -379,6 +713,31 @@ export default function SkillLearnerPage() {
     });
     return counts;
   }, [ariaData]);
+=======
+    const isCorrect = selectedIndex === currentQuestion.correctIndex;
+    setAnswers((prev) => [
+      ...prev,
+      {
+        questionId: currentQuestion.id,
+        topic: currentQuestion.topic,
+        selectedIndex,
+        isCorrect,
+        prompt: currentQuestion.prompt,
+        options: currentQuestion.options,
+      },
+    ]);
+    setShowResult(true);
+  };
+
+  const nextQuestion = () => {
+    setQuestionIndex((prev) => prev + 1);
+  };
+
+  const answersForTrack = answers.filter((answer) => topics.includes(answer.topic));
+  const answersForFocus = selectedFocus ? answers.filter((answer) => answer.topic === selectedFocus) : [];
+  const correctForTrack = answersForTrack.filter((item) => item.isCorrect).length;
+  const correctForFocus = answersForFocus.filter((item) => item.isCorrect).length;
+>>>>>>> safe-nocursor
 
   if (!hasStudentTrack && !hasProfessionalTrack) {
     return (
@@ -419,10 +778,16 @@ export default function SkillLearnerPage() {
               <Network className="w-8 h-8 text-indigo-600" />
             </div>
             <div>
+<<<<<<< HEAD
               <h1 className="text-4xl font-bold text-slate-900">ARIA Skill Learner</h1>
               <p className="text-lg text-slate-600">
                 Your personalized Academic Knowledge Graph — see what you know, what you're missing,
                 and what to learn next.
+=======
+              <h1 className="text-4xl font-bold text-slate-900">Skill Learner</h1>
+              <p className="text-lg text-slate-600">
+                Choose a focus, then answer adaptive MCQs that test topic knowledge and build on previous answers.
+>>>>>>> safe-nocursor
               </p>
             </div>
           </div>
@@ -436,6 +801,7 @@ export default function SkillLearnerPage() {
               Select your track to view the corresponding skill graph analysis.
             </CardDescription>
           </CardHeader>
+<<<<<<< HEAD
           <CardContent className="space-y-4">
             <div className="flex flex-wrap gap-3">
               {hasStudentTrack && (
@@ -446,6 +812,109 @@ export default function SkillLearnerPage() {
                 >
                   <GraduationCap className="w-4 h-4 mr-2" />
                   Student
+=======
+          <CardContent className="flex flex-wrap gap-3">
+            {hasStudentTrack && (
+              <Button
+                type="button"
+                variant={activeTrack === "student" ? "default" : "outline"}
+                onClick={() => switchTrack("student")}
+              >
+                <GraduationCap className="w-4 h-4 mr-2" />
+                Student
+              </Button>
+            )}
+            {hasProfessionalTrack && (
+              <Button
+                type="button"
+                variant={activeTrack === "professional" ? "default" : "outline"}
+                onClick={() => switchTrack("professional")}
+              >
+                <Briefcase className="w-4 h-4 mr-2" />
+                Professional
+              </Button>
+            )}
+            <Badge variant="secondary">Answered: {answersForTrack.length}</Badge>
+            <Badge variant="secondary">Correct: {correctForTrack}</Badge>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Target className="w-5 h-5 text-indigo-600" />
+              Next Focus Selection
+            </CardTitle>
+            <CardDescription>
+              Pick what you want to build next from your recommendation order.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {selectedFocus && !focusSelectorOpen && (
+              <Button type="button" variant="outline" onClick={() => setFocusSelectorOpen(true)}>
+                Focus: {selectedFocus} (Change)
+              </Button>
+            )}
+
+            {focusSelectorOpen && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {topics.map((topic, index) => (
+                  <Button
+                    key={`${topic}-${index}`}
+                    type="button"
+                    variant={selectedFocus === topic ? "default" : "outline"}
+                    onClick={() => chooseFocus(topic)}
+                    className="justify-start"
+                  >
+                    {index + 1}. {topic}
+                  </Button>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {selectedFocus && isGeneratingQuestion && (
+          <Card>
+            <CardContent className="py-8">
+              <p className="text-sm text-slate-600">Generating a topic-specific question...</p>
+            </CardContent>
+          </Card>
+        )}
+
+        {selectedFocus && currentQuestion && !isGeneratingQuestion && (
+          <Card>
+            <CardHeader>
+              <CardTitle>{currentQuestion.topic}</CardTitle>
+              <CardDescription>{currentQuestion.prompt}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex flex-wrap gap-2">
+                <Badge>{currentQuestion.levelLabel}</Badge>
+                <Badge variant="secondary">Focus answered: {answersForFocus.length}</Badge>
+                <Badge variant="secondary">Focus correct: {correctForFocus}</Badge>
+              </div>
+
+              {currentQuestion.options.map((option, index) => {
+                const isPicked = selectedIndex === index;
+                return (
+                  <button
+                    key={`${currentQuestion.id}-${index}`}
+                    type="button"
+                    onClick={() => setSelectedIndex(index)}
+                    className={`w-full text-left p-3 rounded-lg border transition-colors ${
+                      isPicked ? "border-indigo-500 bg-indigo-50" : "border-slate-200 hover:border-indigo-300"
+                    }`}
+                  >
+                    {option}
+                  </button>
+                );
+              })}
+
+              {!showResult ? (
+                <Button type="button" onClick={submitAnswer} disabled={selectedIndex === null}>
+                  Submit Answer
+>>>>>>> safe-nocursor
                 </Button>
               )}
               {hasProfessionalTrack && (
@@ -543,6 +1012,7 @@ export default function SkillLearnerPage() {
           </Card>
         )}
 
+<<<<<<< HEAD
         {ariaData && !loading && (
           <>
             {/* Skill Tree — view toggle */}
@@ -743,6 +1213,17 @@ export default function SkillLearnerPage() {
               </CardContent>
             </Card>
           </>
+=======
+        {!selectedFocus && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Start Quiz</CardTitle>
+              <CardDescription>
+                Select a focus above to begin adaptive, topic-specific MCQs.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+>>>>>>> safe-nocursor
         )}
 
         {/* Back button */}

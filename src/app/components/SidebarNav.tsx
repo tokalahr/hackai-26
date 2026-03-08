@@ -8,7 +8,10 @@ import {
   Briefcase, 
   Brain,
   Info,
+  X,
+  Menu,
 } from "lucide-react";
+import { Button } from "./ui/button";
 
 const navItems = [
   { path: "/home", icon: Home, label: "Home" },
@@ -30,6 +33,18 @@ export default function SidebarNav({ isOpen, setIsOpen }: SidebarNavProps) {
 
   return (
     <>
+      {/* Toggle button — always visible, sits above the overlay */}
+      <div className="fixed left-4 top-3.5 z-[60]">
+        <Button
+          onClick={() => setIsOpen(!isOpen)}
+          variant="outline"
+          size="icon"
+          className="bg-white shadow-sm"
+        >
+          {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        </Button>
+      </div>
+
       {/* Overlay */}
       <AnimatePresence>
         {isOpen && (

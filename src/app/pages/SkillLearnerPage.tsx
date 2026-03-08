@@ -5,6 +5,7 @@ import { Brain, ArrowLeft, CheckCircle2, XCircle, GraduationCap, Briefcase, Targ
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
+import { askBackendAssistant } from "../services/backend-api";
 
 type StudentCache = {
   nextSteps?: Array<{ title?: string; description?: string }>;
@@ -34,21 +35,15 @@ type AnswerRecord = {
   topic: string;
   selectedIndex: number;
   isCorrect: boolean;
+  prompt: string;
+  options: string[];
 };
 
-type QuestionBlueprint = {
-  levelLabel: string;
-  promptTemplate: string;
-  explanationTemplate: string;
-  correct?: string;
-  wrongA?: string;
-  wrongB?: string;
-};
-
-type OptionVariant = {
-  correct: string;
-  wrongA: string;
-  wrongB: string;
+type AssistantQuestionPayload = {
+  prompt?: string;
+  options?: string[];
+  correctIndex?: number;
+  explanation?: string;
 };
 
 function readJson<T>(key: string): T | null {
@@ -80,276 +75,265 @@ function uniqueOrdered(items: string[]): string[] {
   return result;
 }
 
-function rotate<T>(items: T[], shift: number): T[] {
-  const length = items.length;
-  if (length === 0) {
-    return items;
+function parseJsonObject(text: string): AssistantQuestionPayload | null {
+  try {
+    return JSON.parse(text) as AssistantQuestionPayload;
+  } catch {
+    const match = text.match(/\{[\s\S]*\}/);
+    if (!match) {
+      return null;
+    }
+    try {
+      return JSON.parse(match[0]) as AssistantQuestionPayload;
+    } catch {
+      return null;
+    }
   }
-  const safeShift = ((shift % length) + length) % length;
-  return [...items.slice(safeShift), ...items.slice(0, safeShift)];
 }
 
-function optionVariantsFor(track: QuizTrack, levelLabel: string, needsReview: boolean): OptionVariant[] {
-  if (needsReview) {
-    return [
-      {
-        correct: "Revisit your notes, summarize the core concept, and solve one guided example for {topic}.",
-        wrongA: "Jump straight to advanced material and skip concept review for {topic}.",
-        wrongB: "Pause {topic} entirely and switch to an unrelated area.",
-      },
-      {
-        correct: "Redo one foundational exercise in {topic} and explain your reasoning step by step.",
-        wrongA: "Memorize final answers for {topic} without solving the process.",
-        wrongB: "Increase question difficulty in {topic} before fixing fundamentals.",
-      },
-      {
-        correct: "Create a short error log for {topic}, then practice a corrected example.",
-        wrongA: "Ignore the mistake and move to the next topic immediately.",
-        wrongB: "Repeat the exact same method in {topic} without checking why it failed.",
-      },
-    ];
+function getLevelLabel(focusHistory: AnswerRecord[]): string {
+  const last = focusHistory[focusHistory.length - 1];
+  if (last && !last.isCorrect) {
+    return "Reinforcement";
   }
-
-  if (track === "student") {
-    if (levelLabel === "Foundation") {
-      return [
-        {
-          correct: "Define the key terms in {topic} and practice one basic problem.",
-          wrongA: "Memorize random facts without checking how they connect in {topic}.",
-          wrongB: "Skip fundamentals and attempt only final-level tasks in {topic}.",
-        },
-        {
-          correct: "Build a one-page concept map for {topic} and verify it with one example.",
-          wrongA: "Read only summaries and avoid direct practice for {topic}.",
-          wrongB: "Change topics before validating your base understanding of {topic}.",
-        },
-      ];
-    }
-    if (levelLabel === "Application") {
-      return [
-        {
-          correct: "Work through a medium-difficulty scenario in {topic} and explain each step.",
-          wrongA: "Keep re-reading definitions without doing any applied practice.",
-          wrongB: "Attempt a new topic before validating your {topic} understanding.",
-        },
-        {
-          correct: "Solve two practical exercises in {topic} and compare your solution approaches.",
-          wrongA: "Use one memorized pattern for every {topic} problem.",
-          wrongB: "Skip feedback and assume your first attempt in {topic} is always correct.",
-        },
-      ];
-    }
-    if (levelLabel === "Synthesis") {
-      return [
-        {
-          correct: "Combine two ideas in {topic} and justify tradeoffs in your solution.",
-          wrongA: "Avoid comparison and use the first method you remember in {topic}.",
-          wrongB: "Ignore reflection and only track whether your answer is final.",
-        },
-        {
-          correct: "Integrate multiple {topic} techniques into one workflow and defend your choices.",
-          wrongA: "Treat all {topic} techniques as interchangeable without context.",
-          wrongB: "Skip reasoning and optimize only for speed in {topic} work.",
-        },
-      ];
-    }
-    return [
-      {
-        correct: "Teach {topic} back in your own words and solve a timed challenge.",
-        wrongA: "Keep doing only easy questions you already know for {topic}.",
-        wrongB: "Stop practicing {topic} after one correct answer.",
-      },
-      {
-        correct: "Run a timed mixed set for {topic} and explain errors after each question.",
-        wrongA: "Avoid timed practice and only review solved examples in {topic}.",
-        wrongB: "Assume mastery in {topic} without testing retention over time.",
-      },
-    ];
+  const correctCount = focusHistory.filter((item) => item.isCorrect).length;
+  if (correctCount === 0) {
+    return "Foundation";
   }
-
-  if (levelLabel === "Foundation") {
-    return [
-      {
-        correct: "Define a concrete outcome for {topic} and map one measurable KPI.",
-        wrongA: "Start implementation without a business objective for {topic}.",
-        wrongB: "Delay all planning until every edge case is known for {topic}.",
-      },
-      {
-        correct: "Write a success metric for {topic} and align it with one team goal.",
-        wrongA: "Measure activity volume only and ignore outcomes for {topic}.",
-        wrongB: "Keep {topic} goals vague so they cannot be evaluated.",
-      },
-    ];
+  if (correctCount === 1) {
+    return "Application";
   }
-  if (levelLabel === "Application") {
-    return [
-      {
-        correct: "Build a small pilot for {topic}, then review results with stakeholders.",
-        wrongA: "Expand scope immediately before validating {topic} assumptions.",
-        wrongB: "Rely on opinions only and skip evidence for {topic} progress.",
-      },
-      {
-        correct: "Ship a controlled experiment in {topic} and compare baseline vs outcome.",
-        wrongA: "Roll out {topic} to all teams before any pilot learning.",
-        wrongB: "Treat early feedback as noise and avoid iteration in {topic}.",
-      },
-    ];
+  if (correctCount === 2) {
+    return "Synthesis";
   }
-  if (levelLabel === "Synthesis") {
-    return [
-      {
-        correct: "Create repeatable standards for {topic} and mentor one teammate.",
-        wrongA: "Keep {topic} as personal knowledge with no shared process.",
-        wrongB: "Add tools before standardizing how {topic} work is evaluated.",
-      },
-      {
-        correct: "Document a reusable playbook for {topic} and run a peer review session.",
-        wrongA: "Scale {topic} adoption without any standard definitions.",
-        wrongB: "Optimize tooling first and postpone team enablement in {topic}.",
-      },
-    ];
-  }
-  return [
-    {
-      correct: "Lead a cross-team initiative in {topic} and report measurable outcomes.",
-      wrongA: "Focus only on individual tasks and avoid organization-level goals in {topic}.",
-      wrongB: "Treat mastery in {topic} as static and skip post-project retrospectives.",
-    },
-    {
-      correct: "Own a strategy cycle for {topic} with metrics, review cadence, and coaching.",
-      wrongA: "Assume past wins in {topic} guarantee future performance without measurement.",
-      wrongB: "Avoid cross-team visibility and keep {topic} impact local only.",
-    },
-  ];
+  return "Mastery";
 }
 
-function getBlueprint(track: QuizTrack, stage: number, needsReview: boolean): QuestionBlueprint {
-  if (needsReview) {
-    return {
-      levelLabel: "Reinforcement",
-      promptTemplate:
-        "You missed the previous checkpoint. Which action best rebuilds your foundation in {topic}?",
-      correct: "Revisit your notes, summarize the core concept, and solve one guided example for {topic}.",
-      wrongA: "Jump straight to advanced material and skip concept review for {topic}.",
-      wrongB: "Pause {topic} entirely and switch to an unrelated area.",
-      explanationTemplate:
-        "A short review loop helps stabilize {topic} before increasing complexity.",
-    };
-  }
-
-  const studentStages: QuestionBlueprint[] = [
-    {
-      levelLabel: "Foundation",
-      promptTemplate: "What is the best first move to build confidence in {topic}?",
-      correct: "Define the key terms in {topic} and practice one basic problem.",
-      wrongA: "Memorize random facts without checking how they connect in {topic}.",
-      wrongB: "Skip fundamentals and attempt only final-level tasks in {topic}.",
-      explanationTemplate: "Strong foundations in {topic} make all later steps faster.",
-    },
-    {
-      levelLabel: "Application",
-      promptTemplate: "Which choice best applies your current understanding of {topic}?",
-      correct: "Work through a medium-difficulty scenario in {topic} and explain each step.",
-      wrongA: "Keep re-reading definitions without doing any applied practice.",
-      wrongB: "Attempt a new topic before validating your {topic} understanding.",
-      explanationTemplate: "Applied practice turns {topic} from memory into usable skill.",
-    },
-    {
-      levelLabel: "Synthesis",
-      promptTemplate: "How should you deepen mastery in {topic} next?",
-      correct: "Combine two ideas in {topic} and justify tradeoffs in your solution.",
-      wrongA: "Avoid comparison and use the first method you remember in {topic}.",
-      wrongB: "Ignore reflection and only track whether your answer is final.",
-      explanationTemplate: "Synthesis in {topic} builds decision-making, not just repetition.",
-    },
-    {
-      levelLabel: "Mastery",
-      promptTemplate: "What is the strongest mastery checkpoint for {topic}?",
-      correct: "Teach {topic} back in your own words and solve a timed challenge.",
-      wrongA: "Keep doing only easy questions you already know for {topic}.",
-      wrongB: "Stop practicing {topic} after one correct answer.",
-      explanationTemplate: "Teaching and timed retrieval confirm durable mastery in {topic}.",
-    },
-  ];
-
-  const professionalStages: QuestionBlueprint[] = [
-    {
-      levelLabel: "Foundation",
-      promptTemplate: "What is the best first move to establish practical value in {topic}?",
-      correct: "Define a concrete outcome for {topic} and map one measurable KPI.",
-      wrongA: "Start implementation without a business objective for {topic}.",
-      wrongB: "Delay all planning until every edge case is known for {topic}.",
-      explanationTemplate: "Clear outcomes anchor {topic} to impact, not activity.",
-    },
-    {
-      levelLabel: "Application",
-      promptTemplate: "Which action best applies {topic} in a real workflow?",
-      correct: "Build a small pilot for {topic}, then review results with stakeholders.",
-      wrongA: "Expand scope immediately before validating {topic} assumptions.",
-      wrongB: "Rely on opinions only and skip evidence for {topic} progress.",
-      explanationTemplate: "Pilot-first execution keeps {topic} iterative and evidence-based.",
-    },
-    {
-      levelLabel: "Synthesis",
-      promptTemplate: "How should you scale your skill in {topic} next?",
-      correct: "Create repeatable standards for {topic} and mentor one teammate.",
-      wrongA: "Keep {topic} as personal knowledge with no shared process.",
-      wrongB: "Add tools before standardizing how {topic} work is evaluated.",
-      explanationTemplate: "Scalable {topic} skill needs shared standards and transfer.",
-    },
-    {
-      levelLabel: "Mastery",
-      promptTemplate: "What is the strongest mastery signal for {topic} at work?",
-      correct: "Lead a cross-team initiative in {topic} and report measurable outcomes.",
-      wrongA: "Focus only on individual tasks and avoid organization-level goals in {topic}.",
-      wrongB: "Treat mastery in {topic} as static and skip post-project retrospectives.",
-      explanationTemplate: "Mastery in {topic} is demonstrated through sustained, measurable impact.",
-    },
-  ];
-
-  const bank = track === "student" ? studentStages : professionalStages;
-  return bank[Math.min(bank.length - 1, stage)];
-}
-
-function buildAdaptiveQuestion(
+function fallbackQuestion(
   track: QuizTrack,
-  focus: string,
+  topic: string,
+  levelLabel: string,
   questionIndex: number,
-  focusHistory: AnswerRecord[],
+  needsReview: boolean,
 ): QuizQuestion {
-  const safeFocus = focus || "Selected Focus";
-  const lastAnswer = focusHistory[focusHistory.length - 1];
-  const needsReview = Boolean(lastAnswer && !lastAnswer.isCorrect);
-  const wrongCount = focusHistory.filter((answer) => !answer.isCorrect).length;
-  const progressionStage = Math.max(0, Math.min(3, focusHistory.length));
-  const blueprint = getBlueprint(track, progressionStage, needsReview);
+  const focus = topic || "Selected Topic";
 
-  const prompt = blueprint.promptTemplate.replaceAll("{topic}", safeFocus);
-  const explanation = blueprint.explanationTemplate.replaceAll("{topic}", safeFocus);
-
-  const variants = optionVariantsFor(track, blueprint.levelLabel, needsReview);
-  const variantIndex = (questionIndex + wrongCount) % variants.length;
-  const chosen = variants[variantIndex];
-
-  const rawOptions = [
-    chosen.correct.replaceAll("{topic}", safeFocus),
-    chosen.wrongA.replaceAll("{topic}", safeFocus),
-    chosen.wrongB.replaceAll("{topic}", safeFocus),
+  const foundationBank = [
+    {
+      prompt: `Which statement best describes a core concept of ${focus}?`,
+      options: [
+        `${focus} primarily concerns random memorization without context.`,
+        `${focus} focuses on foundational principles and how they connect in practice.`,
+        `${focus} is only useful for advanced edge cases and not fundamentals.`,
+      ],
+      correctIndex: 1,
+      explanation: `${focus} starts with core principles and practical connections, not isolated memorization.`,
+    },
+    {
+      prompt: `What is the strongest first-principles approach to ${focus}?`,
+      options: [
+        `Identify the base model of ${focus}, then test it with a simple scenario.`,
+        `Skip models and rely only on final answers for ${focus}.`,
+        `Treat ${focus} as a fixed checklist with no reasoning.`,
+      ],
+      correctIndex: 0,
+      explanation: `Understanding and testing the underlying model gives durable ${focus} knowledge.`,
+    },
   ];
 
-  const rotatedOptions = rotate(rawOptions, questionIndex % rawOptions.length);
-  const correctIndex = rotatedOptions.findIndex((option) => option === rawOptions[0]);
+  const applicationBank = [
+    {
+      prompt: `In a practical task, what is the best way to apply ${focus}?`,
+      options: [
+        `Select an approach, justify why it fits, then validate with output checks.`,
+        `Use the same method every time regardless of context.`,
+        `Prioritize speed over correctness when applying ${focus}.`,
+      ],
+      correctIndex: 0,
+      explanation: `${focus} application requires context-aware method choice and validation.`,
+    },
+    {
+      prompt: `You must solve a real problem with ${focus}. What should you do first?`,
+      options: [
+        `Define constraints and success criteria before choosing a technique.`,
+        `Jump to implementation and infer constraints later.`,
+        `Avoid measurement and rely on intuition only.`,
+      ],
+      correctIndex: 0,
+      explanation: `Clear constraints improve accuracy and decision quality in ${focus}.`,
+    },
+  ];
+
+  const synthesisBank = [
+    {
+      prompt: `Which choice shows deeper synthesis in ${focus}?`,
+      options: [
+        `Compare two valid approaches in ${focus} and explain tradeoffs.`,
+        `Use one preferred approach and ignore alternatives.`,
+        `Pick the fastest approach without evaluating quality.`,
+      ],
+      correctIndex: 0,
+      explanation: `Synthesis in ${focus} means reasoning across alternatives and tradeoffs.`,
+    },
+    {
+      prompt: `How do you demonstrate strategic thinking in ${focus}?`,
+      options: [
+        `Connect design decisions in ${focus} to downstream impact and risk.`,
+        `Treat each decision in ${focus} as independent and isolated.`,
+        `Optimize one metric in ${focus} while ignoring all side effects.`,
+      ],
+      correctIndex: 0,
+      explanation: `High-level ${focus} proficiency includes system-level consequence analysis.`,
+    },
+  ];
+
+  const masteryBank = [
+    {
+      prompt: `What best indicates mastery of ${focus}?`,
+      options: [
+        `You can explain, adapt, and troubleshoot ${focus} under changing constraints.`,
+        `You can solve only familiar versions of ${focus} problems.`,
+        `You remember terminology for ${focus} but cannot apply it.`,
+      ],
+      correctIndex: 0,
+      explanation: `Mastery is adaptive performance, not only recognition or recall.`,
+    },
+    {
+      prompt: `A mastery-level checkpoint for ${focus} is:`,
+      options: [
+        `Design a robust solution in ${focus} and defend decisions with evidence.`,
+        `Avoid explaining why your ${focus} solution works.`,
+        `Depend on one memorized pattern for all ${focus} tasks.`,
+      ],
+      correctIndex: 0,
+      explanation: `Evidence-backed decisions and adaptability mark true ${focus} mastery.`,
+    },
+  ];
+
+  const reinforcementBank = [
+    {
+      prompt: `You missed the previous ${focus} question. Which follow-up is best?`,
+      options: [
+        `Retry a similar ${focus} concept with a new scenario and verify each step.`,
+        `Switch to a different topic and skip ${focus} remediation.`,
+        `Repeat the same mistake pattern in ${focus} without checking assumptions.`,
+      ],
+      correctIndex: 0,
+      explanation: `A similar but re-framed ${focus} scenario helps repair misconceptions.`,
+    },
+    {
+      prompt: `For ${focus} reinforcement, what should you prioritize now?`,
+      options: [
+        `Rebuild the concept with a different example and compare with your last answer.`,
+        `Memorize the previous answer choice without reasoning.`,
+        `Increase difficulty before fixing the core ${focus} mistake.`,
+      ],
+      correctIndex: 0,
+      explanation: `Reinforcement works best when the same concept is tested through a new lens.`,
+    },
+  ];
+
+  const bank = needsReview
+    ? reinforcementBank
+    : levelLabel === "Application"
+      ? applicationBank
+      : levelLabel === "Synthesis"
+        ? synthesisBank
+        : levelLabel === "Mastery"
+          ? masteryBank
+          : foundationBank;
+
+  const picked = bank[questionIndex % bank.length];
 
   return {
-    id: `${track}-${safeFocus}-${questionIndex}`,
+    id: `${track}-${focus}-${questionIndex}-fallback`,
     track,
-    topic: safeFocus,
-    prompt,
-    options: rotatedOptions,
-    correctIndex,
-    explanation,
-    levelLabel: blueprint.levelLabel,
+    topic: focus,
+    prompt: picked.prompt,
+    options: picked.options,
+    correctIndex: picked.correctIndex,
+    explanation: picked.explanation,
+    levelLabel,
   };
+}
+
+async function generateTopicQuestion(
+  track: QuizTrack,
+  topic: string,
+  questionIndex: number,
+  focusHistory: AnswerRecord[],
+): Promise<QuizQuestion> {
+  const safeTopic = topic || "Selected Topic";
+  const lastAnswer = focusHistory[focusHistory.length - 1];
+  const needsReview = Boolean(lastAnswer && !lastAnswer.isCorrect);
+  const levelLabel = getLevelLabel(focusHistory);
+
+  const historySummary = focusHistory
+    .slice(-3)
+    .map((item, idx) => {
+      const outcome = item.isCorrect ? "correct" : "incorrect";
+      return `Q${idx + 1}: ${item.prompt} | selected="${item.options[item.selectedIndex] || ""}" | ${outcome}`;
+    })
+    .join("\n");
+
+  const previousQuestionContext = lastAnswer
+    ? `Previous question prompt: ${lastAnswer.prompt}\nPrevious options: ${lastAnswer.options.join(" | ")}`
+    : "No previous question for this focus yet.";
+
+  const remediationRule = needsReview
+    ? "The learner got the previous question wrong. Generate a similar concept question about the SAME topic, but with different wording and different options from the previous question."
+    : "Generate the next progressive question for this topic knowledge level.";
+
+  const prompt = [
+    "Return ONLY a valid JSON object with keys: prompt, options, correctIndex, explanation.",
+    "This must be a knowledge question ABOUT THE TOPIC ITSELF, not about study habits or learning strategy.",
+    `Track: ${track}.`,
+    `Topic: ${safeTopic}.`,
+    `Target difficulty level: ${levelLabel}.`,
+    remediationRule,
+    previousQuestionContext,
+    `Recent answer history:\n${historySummary || "None"}`,
+    "Rules:",
+    "- options must have at least 2 items (prefer 3 or 4).",
+    "- exactly one correct answer.",
+    "- correctIndex must be a valid zero-based index.",
+    "- explanation must be concise and topic-specific.",
+  ].join("\n\n");
+
+  try {
+    const response = await askBackendAssistant(prompt);
+    const parsed = parseJsonObject(response);
+
+    if (!parsed?.prompt || !Array.isArray(parsed.options) || parsed.options.length < 2) {
+      return fallbackQuestion(track, safeTopic, levelLabel, questionIndex, needsReview);
+    }
+
+    const options = parsed.options.map((opt) => String(opt).trim()).filter(Boolean);
+    if (options.length < 2) {
+      return fallbackQuestion(track, safeTopic, levelLabel, questionIndex, needsReview);
+    }
+
+    let correctIndex = Number(parsed.correctIndex);
+    if (!Number.isInteger(correctIndex) || correctIndex < 0 || correctIndex >= options.length) {
+      correctIndex = 0;
+    }
+
+    const safePrompt = String(parsed.prompt).trim();
+    const safeExplanation = String(parsed.explanation || "Review this concept and compare your choice with the correct option.").trim();
+
+    return {
+      id: `${track}-${safeTopic}-${questionIndex}-${Date.now()}`,
+      track,
+      topic: safeTopic,
+      prompt: safePrompt,
+      options,
+      correctIndex,
+      explanation: safeExplanation,
+      levelLabel,
+    };
+  } catch {
+    return fallbackQuestion(track, safeTopic, levelLabel, questionIndex, needsReview);
+  }
 }
 
 export default function SkillLearnerPage() {
@@ -384,6 +368,7 @@ export default function SkillLearnerPage() {
   const [answers, setAnswers] = useState<AnswerRecord[]>([]);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
+  const [isGeneratingQuestion, setIsGeneratingQuestion] = useState(false);
 
   const topics = activeTrack === "student" ? studentTopics : professionalTopics;
 
@@ -431,10 +416,26 @@ export default function SkillLearnerPage() {
       return;
     }
 
+    let active = true;
     const focusHistory = answers.filter((answer) => answer.topic === selectedFocus);
-    setCurrentQuestion(buildAdaptiveQuestion(activeTrack, selectedFocus, questionIndex, focusHistory));
-    setSelectedIndex(null);
-    setShowResult(false);
+
+    const buildQuestion = async () => {
+      setIsGeneratingQuestion(true);
+      const generated = await generateTopicQuestion(activeTrack, selectedFocus, questionIndex, focusHistory);
+      if (!active) {
+        return;
+      }
+      setCurrentQuestion(generated);
+      setSelectedIndex(null);
+      setShowResult(false);
+      setIsGeneratingQuestion(false);
+    };
+
+    void buildQuestion();
+
+    return () => {
+      active = false;
+    };
   }, [activeTrack, selectedFocus, questionIndex, answers]);
 
   const switchTrack = (next: QuizTrack) => {
@@ -463,6 +464,8 @@ export default function SkillLearnerPage() {
         topic: currentQuestion.topic,
         selectedIndex,
         isCorrect,
+        prompt: currentQuestion.prompt,
+        options: currentQuestion.options,
       },
     ]);
     setShowResult(true);
@@ -515,7 +518,9 @@ export default function SkillLearnerPage() {
             </div>
             <div>
               <h1 className="text-4xl font-bold text-slate-900">Skill Learner</h1>
-              <p className="text-lg text-slate-600">Choose a focus, then answer adaptive MCQs that build from your previous responses.</p>
+              <p className="text-lg text-slate-600">
+                Choose a focus, then answer adaptive MCQs that test topic knowledge and build on previous answers.
+              </p>
             </div>
           </div>
         </motion.div>
@@ -588,13 +593,19 @@ export default function SkillLearnerPage() {
           </CardContent>
         </Card>
 
-        {selectedFocus && currentQuestion && (
+        {selectedFocus && isGeneratingQuestion && (
+          <Card>
+            <CardContent className="py-8">
+              <p className="text-sm text-slate-600">Generating a topic-specific question...</p>
+            </CardContent>
+          </Card>
+        )}
+
+        {selectedFocus && currentQuestion && !isGeneratingQuestion && (
           <Card>
             <CardHeader>
               <CardTitle>{currentQuestion.topic}</CardTitle>
-              <CardDescription>
-                {currentQuestion.prompt}
-              </CardDescription>
+              <CardDescription>{currentQuestion.prompt}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex flex-wrap gap-2">
@@ -652,7 +663,7 @@ export default function SkillLearnerPage() {
             <CardHeader>
               <CardTitle>Start Quiz</CardTitle>
               <CardDescription>
-                Select a focus above to begin adaptive skill-building questions.
+                Select a focus above to begin adaptive, topic-specific MCQs.
               </CardDescription>
             </CardHeader>
           </Card>

@@ -5,117 +5,165 @@ This project includes:
 - Frontend: React + Vite (runs on `http://localhost:5173`)
 - Backend: Flask API proxy (runs on `http://localhost:5004`)
 
-## Run In VS Code (3-Terminal Workflow)
+---
 
-This guide matches your preferred setup:
-1. Terminal 1: frontend
-2. Terminal 2: backend
-3. Terminal 3: free for tests/git/curl
+## Prerequisites
 
-All commands below are for **Windows PowerShell** in VS Code.
+| Tool | Version | Notes |
+|------|---------|-------|
+| **Node.js** | 18+ | [nodejs.org](https://nodejs.org/) |
+| **npm** | 9+ | Bundled with Node.js |
+| **Python** | 3.10+ | [python.org](https://www.python.org/downloads/) |
 
-## 1. Open Project In VS Code
+---
 
-Open this folder:
-- `c:\Users\tokal\College\HackAI\hackai-26`
+## 1. Clone & Open Project
 
-Then open 3 terminals in VS Code:
-- `Terminal` -> `New Terminal` (repeat until you have 3 tabs)
+```bash
+git clone https://github.com/tokalahr/hackai-26.git
+cd hackai-26
+```
+
+Open the project folder in VS Code (or your editor of choice) and open **3 terminals**:
+1. Terminal 1 — frontend
+2. Terminal 2 — backend
+3. Terminal 3 — free for tests/git/curl
+
+---
 
 ## 2. One-Time Setup
 
-In Terminal 1 (project root), install frontend dependencies:
+### Install frontend dependencies (Terminal 1)
 
-```powershell
-Set-Location c:/Users/tokal/College/HackAI/hackai-26
-npm i
+```bash
+npm install
 ```
 
-In Terminal 2, create backend virtual environment and install Python packages:
+### Create backend virtual environment and install packages (Terminal 2)
 
-```powershell
-Set-Location c:/Users/tokal/College/HackAI/hackai-26
-if (-not (Test-Path "backend/.venv/Scripts/python.exe")) { py -3 -m venv backend/.venv }
-& "backend/.venv/Scripts/python.exe" -m pip install -r backend/requirements.txt
+**macOS / Linux:**
+
+```bash
+python3 -m venv backend/.venv
+backend/.venv/bin/pip install -r backend/requirements.txt
 ```
 
-Create backend env file if missing:
+**Windows (PowerShell):**
 
 ```powershell
-Set-Location c:/Users/tokal/College/HackAI/hackai-26
-if (-not (Test-Path "backend/.env")) { Copy-Item backend/.env.example backend/.env }
+py -3 -m venv backend/.venv
+backend\.venv\Scripts\python.exe -m pip install -r backend/requirements.txt
 ```
 
-Then edit `backend/.env` with valid keys, especially:
-- `NEBULA_API_KEY`
-- `OPENAI_API_KEY` (used by `/solve`)
+### Create backend `.env` file
 
-## 3. Start The App (Daily Workflow)
+Copy `backend/.env.example` to `backend/.env` (if the example file exists), or create `backend/.env` manually with these keys:
 
-Terminal 1 (frontend):
+```
+NEBULA_API_KEY=
+NEBULA_BASE_URL=<Nebula API base URL>
+OPENAI_API_KEY=
+LLM_API_URL=<OpenAI chat completions endpoint>
+```
 
-```powershell
-Set-Location c:/Users/tokal/College/HackAI/hackai-26
+Then edit `backend/.env` with valid keys:
+- `NEBULA_API_KEY` — for course/professor data (optional; public data works without it)
+- `OPENAI_API_KEY` — for the Learning Assistant chat and quiz question generation (optional)
+
+---
+
+## 3. Start The App
+
+### Terminal 1 — Frontend
+
+```bash
 npm run dev
 ```
 
-Terminal 2 (backend):
+### Terminal 2 — Backend
 
-```powershell
-Set-Location c:/Users/tokal/College/HackAI/hackai-26
-& "backend/.venv/Scripts/python.exe" backend/app/main.py
+**macOS / Linux:**
+
+```bash
+backend/.venv/bin/python backend/app/main.py
 ```
 
-Terminal 3 (free terminal):
-- Use for git commands, API tests, npm build checks, etc.
+**Windows (PowerShell):**
+
+```powershell
+backend\.venv\Scripts\python.exe backend\app\main.py
+```
+
+---
 
 ## 4. Verify Everything Is Running
 
-In Terminal 3:
+### Terminal 3 — quick check
+
+**macOS / Linux:**
+
+```bash
+curl http://localhost:5004/
+```
+
+**Windows (PowerShell):**
 
 ```powershell
-Set-Location c:/Users/tokal/College/HackAI/hackai-26
 Invoke-RestMethod http://localhost:5004/
 ```
 
-Expected backend response includes:
-- `Welcome to the Modern Student Tool API!`
+Expected response: `Welcome to the Modern Student Tool API!`
 
-Optional live data check:
+Then open the frontend in your browser: **http://localhost:5173**
 
-```powershell
-Invoke-RestMethod "http://localhost:5004/course?offset=0"
+---
+
+## 5. Common Commands
+
+| Task | Command |
+|------|---------|
+| Start frontend dev server | `npm run dev` |
+| Build frontend for production | `npm run build` |
+| Check git status | `git status` |
+
+---
+
+## Project Structure
+
+```
+hackai-26/
+├── src/                    # React frontend (Vite + TypeScript + Tailwind)
+│   ├── app/
+│   │   ├── pages/          # Page components (Home, Dashboard, SkillLearner, etc.)
+│   │   ├── components/     # UI components (TopNavbar, SidebarNav, SkillTreeGraph, etc.)
+│   │   ├── services/       # API client (backend-api.ts)
+│   │   └── routes.tsx      # Client-side routes
+│   └── styles/             # CSS / Tailwind theme
+├── backend/
+│   ├── app/
+│   │   ├── main.py         # Flask entry point (port 5004)
+│   │   ├── routes/         # API route blueprints
+│   │   ├── aria/           # ARIA engine (AKG, SDG, graph intelligence)
+│   │   └── utils/          # Nebula API client
+│   └── requirements.txt    # Python dependencies
+├── package.json            # npm config (frontend)
+└── .env                    # VITE_API_BASE_URL (frontend env)
 ```
 
-Then open frontend in browser:
-- `http://localhost:5173`
-
-## 5. Common Commands In Free Terminal
-
-Build frontend:
-
-```powershell
-Set-Location c:/Users/tokal/College/HackAI/hackai-26
-npm run build
-```
-
-Check git status:
-
-```powershell
-git status
-```
+---
 
 ## Troubleshooting
 
-- Frontend shows empty live sections:
+- **Frontend shows empty live sections:**
   - Confirm backend is running on port `5004`.
-  - Confirm `backend/.env` exists and has valid `NEBULA_API_KEY`.
+  - Confirm `backend/.env` exists and has a valid `NEBULA_API_KEY`.
 
-- Backend starts but `/course` returns 500:
+- **Backend starts but `/course` returns 500:**
   - Check API keys in `backend/.env`.
   - Restart backend terminal after editing env values.
 
-- Wrong URL being used by frontend:
-  - Set root `.env` with:
-    - `VITE_API_BASE_URL=http://localhost:5004`
-  
+- **Wrong URL being used by frontend:**
+  - Set root `.env` with: `VITE_API_BASE_URL=http://localhost:5004`
+
+- **`python3 -m venv` fails on Ubuntu/Debian:**
+  - Install the venv package: `sudo apt install python3.12-venv`

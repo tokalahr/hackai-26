@@ -2,7 +2,7 @@
 
 ## Cursor Cloud specific instructions
 
-Aria is an academic intelligence engine with a React+Vite frontend (port 5173) and Flask backend (port 5004). See `README.md` for standard commands.
+Nyx is an academic intelligence engine with a React+Vite frontend (port 5173) and Flask backend (port 5004). See `README.md` for standard commands.
 
 ### Services
 

@@ -39,7 +39,7 @@ export default function SidebarNav({ isOpen, setIsOpen }: SidebarNavProps) {
           onClick={() => setIsOpen(!isOpen)}
           variant="outline"
           size="icon"
-          className="bg-white shadow-sm"
+          className="bg-white dark:bg-slate-800 shadow-sm"
         >
           {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </Button>
@@ -66,7 +66,7 @@ export default function SidebarNav({ isOpen, setIsOpen }: SidebarNavProps) {
             animate={{ x: 0 }}
             exit={{ x: -280 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="fixed left-0 top-16 bottom-0 w-64 bg-white shadow-xl z-50 overflow-y-auto"
+            className="fixed left-0 top-16 bottom-0 w-64 bg-white dark:bg-slate-900 shadow-xl z-50 overflow-y-auto"
           >
             <nav className="p-4 space-y-2">
               {navItems.map((item) => {
@@ -80,8 +80,8 @@ export default function SidebarNav({ isOpen, setIsOpen }: SidebarNavProps) {
                     onClick={() => setIsOpen(false)}
                     className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                       isActive
-                        ? "bg-indigo-50 text-indigo-600"
-                        : "text-slate-700 hover:bg-slate-100"
+                        ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400"
+                        : "text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
                     }`}
                   >
                     <Icon className="w-5 h-5" />

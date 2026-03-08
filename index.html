@@ -4,10 +4,13 @@
     <head>
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>Aria — Academic Intelligence Engine</title>
+      <title>Nyx — Academic Intelligence Engine</title>
     </head>
 
     <body>
+      <script>
+        (function(){var t=localStorage.getItem("nyx-theme");if(t==="dark"||(t!=="light"&&matchMedia("(prefers-color-scheme:dark)").matches))document.documentElement.classList.add("dark")})();
+      </script>
       <div id="root"></div>
       <script type="module" src="/src/main.tsx"></script>
     </body>

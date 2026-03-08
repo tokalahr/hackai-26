@@ -152,8 +152,8 @@ export default function HomePage() {
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Welcome Section */}
         <motion.div initial={{ opacity: 0, x: 100 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }} className="space-y-2">
-          <h1 className="text-4xl font-bold text-slate-900">Welcome, {name}</h1>
-          <p className="text-lg text-slate-600">Your learning journey continues here</p>
+          <h1 className="text-4xl font-bold text-slate-900 dark:text-white">Welcome, {name}</h1>
+          <p className="text-lg text-slate-600 dark:text-slate-400">Your learning journey continues here</p>
         </motion.div>
 
         {/* Dashboard Preview */}
@@ -168,14 +168,14 @@ export default function HomePage() {
             </CardHeader>
             <CardContent>
               <div className="rounded-lg overflow-hidden border border-slate-200">
-                <div className="grid grid-cols-2 gap-4 p-6 bg-gradient-to-br from-indigo-50 to-purple-50">
+                <div className="grid grid-cols-2 gap-4 p-6 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/50 dark:to-purple-950/50">
                   {/* Skills Progress */}
-                  <div className="bg-white rounded-lg p-4 shadow-sm">
+                  <div className="bg-white dark:bg-slate-800 rounded-lg p-4 shadow-sm">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-slate-600">Skills Unlocked</span>
+                      <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Skills Unlocked</span>
                       <TrendingUp className="w-4 h-4 text-green-600" />
                     </div>
-                    <div className="text-2xl font-bold text-slate-900">
+                    <div className="text-2xl font-bold text-slate-900 dark:text-white">
                       {loaded ? `${stats.skillsUnlocked} / ${stats.totalSkills}` : "..."}
                     </div>
                     <div className="w-full bg-slate-200 rounded-full h-2 mt-2">
@@ -184,12 +184,12 @@ export default function HomePage() {
                   </div>
 
                   {/* Courses Tracked */}
-                  <div className="bg-white rounded-lg p-4 shadow-sm">
+                  <div className="bg-white dark:bg-slate-800 rounded-lg p-4 shadow-sm">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm font-medium text-slate-600">Courses Tracked</span>
                       <BookOpen className="w-4 h-4 text-blue-600" />
                     </div>
-                    <div className="text-2xl font-bold text-slate-900">
+                    <div className="text-2xl font-bold text-slate-900 dark:text-white">
                       {loaded ? stats.coursesTracked : "..."}
                     </div>
                     <div className="text-sm text-slate-500 mt-1">
@@ -198,12 +198,12 @@ export default function HomePage() {
                   </div>
 
                   {/* Today's Events */}
-                  <div className="bg-white rounded-lg p-4 shadow-sm">
+                  <div className="bg-white dark:bg-slate-800 rounded-lg p-4 shadow-sm">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm font-medium text-slate-600">Today's Events</span>
                       <Calendar className="w-4 h-4 text-purple-600" />
                     </div>
-                    <div className="text-lg font-semibold text-slate-900">
+                    <div className="text-lg font-semibold text-slate-900 dark:text-white">
                       {loaded ? (stats.todayEvents > 0 ? `${stats.todayEvents} events` : "No events today") : "..."}
                     </div>
                     <div className="text-sm text-slate-500 truncate">
@@ -212,12 +212,12 @@ export default function HomePage() {
                   </div>
 
                   {/* Calibration Score */}
-                  <div className="bg-white rounded-lg p-4 shadow-sm">
+                  <div className="bg-white dark:bg-slate-800 rounded-lg p-4 shadow-sm">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm font-medium text-slate-600">Calibration</span>
                       <Brain className="w-4 h-4 text-indigo-600" />
                     </div>
-                    <div className="text-lg font-semibold text-slate-900">
+                    <div className="text-lg font-semibold text-slate-900 dark:text-white">
                       {stats.calibrationScore !== null
                         ? `${Math.round(stats.calibrationScore * 100)}%`
                         : loaded ? "Not calibrated" : "..."}

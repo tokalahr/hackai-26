@@ -10,7 +10,7 @@ export default function Root() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 dark:text-slate-100">
       {!isEntryPage && <TopNavbar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />}
       <div className="flex">
         {!isEntryPage && <SidebarNav isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />}

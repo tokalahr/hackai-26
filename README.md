@@ -1,5 +1,5 @@
 
-# Aria — Academic Intelligence Engine
+# Nyx — Academic Intelligence Engine
 
 This project includes:
 - Frontend: React + Vite (runs on `http://localhost:5173`)

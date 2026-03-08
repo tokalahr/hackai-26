@@ -211,6 +211,7 @@ export default function StudentRecommendationsPage() {
             resources: latestResources.length > 0 ? latestResources : resources,
           };
           sessionStorage.setItem(STUDENT_CACHE_KEY, JSON.stringify(payload));
+          window.dispatchEvent(new Event("skill-tracks-updated"));
         }
         setLoading(false);
       }

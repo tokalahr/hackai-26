@@ -6,6 +6,7 @@ import DashboardPage from "./pages/DashboardPage";
 import LearningAssistantPage from "./pages/LearningAssistantPage";
 import StudentRecommendationsPage from "./pages/StudentRecommendationsPage";
 import ProfessionalRecommendationsPage from "./pages/ProfessionalRecommendationsPage";
+import SkillLearnerPage from "./pages/SkillLearnerPage";
 import AboutPage from "./pages/AboutPage";
 import NotFoundPage from "./pages/NotFoundPage";
 
@@ -20,6 +21,7 @@ export const router = createBrowserRouter([
       { path: "learning-assistant", Component: LearningAssistantPage },
       { path: "student-recommendations", Component: StudentRecommendationsPage },
       { path: "professional-recommendations", Component: ProfessionalRecommendationsPage },
+      { path: "skill-learner", Component: SkillLearnerPage },
       { path: "about", Component: AboutPage },
       { path: "*", Component: NotFoundPage },
     ],

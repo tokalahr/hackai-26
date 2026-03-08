@@ -1,4 +1,5 @@
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
+import { useEffect, useState } from "react";
 import { GraduationCap, LayoutDashboard, Menu, X } from "lucide-react";
 import { Button } from "./ui/button";
 
@@ -8,6 +9,29 @@ interface TopNavbarProps {
 }
 
 export default function TopNavbar({ isOpen, setIsOpen }: TopNavbarProps) {
+  const location = useLocation();
+  const [hasStudentSkillTrack, setHasStudentSkillTrack] = useState(false);
+  const [hasProfessionalSkillTrack, setHasProfessionalSkillTrack] = useState(false);
+
+  const refreshTrackFlags = () => {
+    const studentRaw = sessionStorage.getItem("student-recommendations-cache");
+    const professionalRaw = sessionStorage.getItem("professional-recommendations-cache");
+    setHasStudentSkillTrack(Boolean(studentRaw));
+    setHasProfessionalSkillTrack(Boolean(professionalRaw));
+  };
+
+  useEffect(() => {
+    refreshTrackFlags();
+  }, [location.pathname]);
+
+  useEffect(() => {
+    const onSkillTracksUpdated = () => refreshTrackFlags();
+    window.addEventListener("skill-tracks-updated", onSkillTracksUpdated);
+    return () => {
+      window.removeEventListener("skill-tracks-updated", onSkillTracksUpdated);
+    };
+  }, []);
+
   return (
     <nav className="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -43,6 +67,20 @@ export default function TopNavbar({ isOpen, setIsOpen }: TopNavbarProps) {
                 About
               </Button>
             </Link>
+            {hasStudentSkillTrack && (
+              <Link to="/skill-learner?track=student">
+                <Button variant="ghost" size="sm">
+                  Skill Learner: Student
+                </Button>
+              </Link>
+            )}
+            {hasProfessionalSkillTrack && (
+              <Link to="/skill-learner?track=professional">
+                <Button variant="ghost" size="sm">
+                  Skill Learner: Professional
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
       </div>

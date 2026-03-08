@@ -280,6 +280,7 @@ export default function ProfessionalRecommendationsPage() {
             resourcesRaw: latestResourcesRaw ?? resourcesRaw,
           };
           sessionStorage.setItem(PROFESSIONAL_CACHE_KEY, JSON.stringify(payload));
+          window.dispatchEvent(new Event("skill-tracks-updated"));
         }
         setLoading(false);
       }

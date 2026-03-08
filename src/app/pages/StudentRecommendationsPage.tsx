@@ -49,8 +49,9 @@ export default function StudentRecommendationsPage() {
     return (
       <div className="min-h-screen p-8 flex items-center justify-center">
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0, x: 100 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
           className="max-w-md w-full"
         >
           <Alert variant="destructive">
@@ -78,8 +79,9 @@ export default function StudentRecommendationsPage() {
       <div className="max-w-5xl mx-auto space-y-8">
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, x: 100 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
           className="space-y-2"
         >
           <div className="flex items-center gap-3">
@@ -99,9 +101,9 @@ export default function StudentRecommendationsPage() {
 
         {/* Overview */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
+          initial={{ opacity: 0, x: 100 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.1, duration: 0.5 }}
         >
           <Card className="bg-gradient-to-r from-indigo-50 to-purple-50">
             <CardHeader>
@@ -118,9 +120,9 @@ export default function StudentRecommendationsPage() {
 
         {/* Next Steps */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+          initial={{ opacity: 0, x: 100 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
         >
           <Card>
             <CardHeader>
@@ -190,9 +192,9 @@ export default function StudentRecommendationsPage() {
 
         {/* Focus Areas */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
+          initial={{ opacity: 0, x: 100 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.3, duration: 0.5 }}
         >
           <Card>
             <CardHeader>
@@ -216,9 +218,9 @@ export default function StudentRecommendationsPage() {
                 ].map((area, index) => (
                   <motion.div
                     key={area}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.1 * index }}
+                    initial={{ opacity: 0, x: 100 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 * index, duration: 0.5 }}
                     className="flex items-center gap-3 p-4 rounded-lg border border-slate-200 hover:border-indigo-300 transition-colors"
                   >
                     <div className="w-2 h-2 bg-indigo-600 rounded-full" />
@@ -232,9 +234,9 @@ export default function StudentRecommendationsPage() {
 
         {/* Resources */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
+          initial={{ opacity: 0, x: 100 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.4, duration: 0.5 }}
         >
           <Card>
             <CardHeader>
@@ -298,9 +300,9 @@ export default function StudentRecommendationsPage() {
 
         {/* Action Buttons */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
+          initial={{ opacity: 0, x: 100 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.5, duration: 0.5 }}
           className="flex gap-4"
         >
           <Link to="/learning-assistant" className="flex-1">

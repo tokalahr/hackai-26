@@ -8,8 +8,9 @@ export default function NotFoundPage() {
   return (
     <div className="min-h-screen flex items-center justify-center p-8">
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
+        initial={{ opacity: 0, x: 100 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5 }}
         className="max-w-md w-full"
       >
         <Card>

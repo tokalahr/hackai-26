@@ -50,8 +50,9 @@ export default function ProfessionalRecommendationsPage() {
     return (
       <div className="min-h-screen p-8 flex items-center justify-center">
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0, x: 100 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
           className="max-w-md w-full"
         >
           <Alert variant="destructive">
@@ -79,8 +80,9 @@ export default function ProfessionalRecommendationsPage() {
       <div className="max-w-5xl mx-auto space-y-8">
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, x: 100 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
           className="space-y-2"
         >
           <div className="flex items-center gap-3">
@@ -100,9 +102,9 @@ export default function ProfessionalRecommendationsPage() {
 
         {/* Overview */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
+          initial={{ opacity: 0, x: 100 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.1, duration: 0.5 }}
         >
           <Card className="bg-gradient-to-r from-purple-50 to-indigo-50">
             <CardHeader>
@@ -119,9 +121,9 @@ export default function ProfessionalRecommendationsPage() {
 
         {/* Career Advancement Steps */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+          initial={{ opacity: 0, x: 100 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
         >
           <Card>
             <CardHeader>
@@ -196,9 +198,9 @@ export default function ProfessionalRecommendationsPage() {
 
         {/* Core Competencies */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
+          initial={{ opacity: 0, x: 100 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.3, duration: 0.5 }}
         >
           <Card>
             <CardHeader>
@@ -222,9 +224,9 @@ export default function ProfessionalRecommendationsPage() {
                 ].map((item, index) => (
                   <motion.div
                     key={item.skill}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.1 * index }}
+                    initial={{ opacity: 0, x: 100 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 * index, duration: 0.5 }}
                     className="p-4 rounded-lg border border-slate-200"
                   >
                     <div className="flex items-center justify-between mb-2">
@@ -248,9 +250,9 @@ export default function ProfessionalRecommendationsPage() {
 
         {/* Real-World Scenarios */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
+          initial={{ opacity: 0, x: 100 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.4, duration: 0.5 }}
         >
           <Card>
             <CardHeader>
@@ -314,9 +316,9 @@ export default function ProfessionalRecommendationsPage() {
 
         {/* Professional Resources */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
+          initial={{ opacity: 0, x: 100 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.5, duration: 0.5 }}
         >
           <Card>
             <CardHeader>
@@ -380,9 +382,9 @@ export default function ProfessionalRecommendationsPage() {
 
         {/* Action Buttons */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
+          initial={{ opacity: 0, x: 100 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.6, duration: 0.5 }}
           className="flex gap-4"
         >
           <Link to="/learning-assistant" className="flex-1">

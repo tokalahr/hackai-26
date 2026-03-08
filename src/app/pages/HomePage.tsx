@@ -1,6 +1,6 @@
 import { motion } from "motion/react";
 import { Link } from "react-router";
-import { BarChart3, BookOpen, Calendar, TrendingUp, Sparkles } from "lucide-react";
+import { BarChart3, BookOpen, Calendar, CheckCircle2, TrendingUp, Trophy, Users, Sparkles } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import dashboardPreviewImage from "figma:asset/c8fbaffa0a47973e9ca58a8bd06fc4b23895a2c5.png";
@@ -128,7 +128,7 @@ export default function HomePage() {
                 <CardHeader>
                   <Sparkles className="w-8 h-8 text-indigo-600 mb-2" />
                   <CardTitle>Learning Assistant</CardTitle>
-                  <CardDescription className="px-[0px] py-[5px] px-[0px] py-[10px] px-[0px] pt-[0px] pb-[10px]">
+                  <CardDescription className="pt-0 pb-[10px]">
                     Get personalized learning recommendations
                   </CardDescription>
                 </CardHeader>
@@ -168,55 +168,63 @@ export default function HomePage() {
           transition={{ delay: 0.3, duration: 0.5 }}
           className="grid grid-cols-1 md:grid-cols-4 gap-4"
         >
-          <Card>
-            <CardHeader className="pb-2">
-              <CardDescription>Courses in Progress</CardDescription>
-              <CardTitle className="text-3xl">18</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center text-sm text-green-600">
-                <TrendingUp className="w-4 h-4 mr-1" />
-                <span>+2 this week</span>
+          <Card className="border-0 bg-[#F9EEEE] shadow-none">
+            <CardHeader className="pb-4 space-y-4">
+              <div className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-[#F28B54]/20 text-[#E7682F]">
+                  <BookOpen className="h-4 w-4" />
+                </span>
+                <CardDescription className="text-slate-700">Course in Progress</CardDescription>
               </div>
+              <CardTitle className="text-5xl text-slate-900">18</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="h-1.5 w-16 rounded-full bg-[#E7682F]" />
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="pb-2">
-              <CardDescription>Courses Completed</CardDescription>
-              <CardTitle className="text-3xl">23</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center text-sm text-green-600">
-                <TrendingUp className="w-4 h-4 mr-1" />
-                <span>+3 this month</span>
+          <Card className="border-0 bg-[#ECF6F2] shadow-none">
+            <CardHeader className="pb-4 space-y-4">
+              <div className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-emerald-500/20 text-emerald-600">
+                  <CheckCircle2 className="h-4 w-4" />
+                </span>
+                <CardDescription className="text-slate-700">Course Completed</CardDescription>
               </div>
+              <CardTitle className="text-5xl text-slate-900">23</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="h-1.5 w-16 rounded-full bg-emerald-500" />
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="pb-2">
-              <CardDescription>Certificates Earned</CardDescription>
-              <CardTitle className="text-3xl">15</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center text-sm text-green-600">
-                <TrendingUp className="w-4 h-4 mr-1" />
-                <span>+1 this week</span>
+          <Card className="border-0 bg-[#EEF4FB] shadow-none">
+            <CardHeader className="pb-4 space-y-4">
+              <div className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-blue-500/20 text-blue-600">
+                  <Trophy className="h-4 w-4" />
+                </span>
+                <CardDescription className="text-slate-700">Certificates Earned</CardDescription>
               </div>
+              <CardTitle className="text-5xl text-slate-900">15</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="h-1.5 w-16 rounded-full bg-blue-600" />
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="pb-2">
-              <CardDescription>Community Support</CardDescription>
-              <CardTitle className="text-3xl">87</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center text-sm text-green-600">
-                <TrendingUp className="w-4 h-4 mr-1" />
-                <span>Highly active</span>
+          <Card className="border-0 bg-[#F0F0FC] shadow-none">
+            <CardHeader className="pb-4 space-y-4">
+              <div className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-violet-500/20 text-violet-600">
+                  <Users className="h-4 w-4" />
+                </span>
+                <CardDescription className="text-slate-700">Community Support</CardDescription>
               </div>
+              <CardTitle className="text-5xl text-slate-900">87</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="h-1.5 w-16 rounded-full bg-violet-600" />
             </CardContent>
           </Card>
         </motion.div>

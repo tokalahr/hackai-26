@@ -89,8 +89,9 @@ export default function DashboardPage() {
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, x: 100 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
           className="space-y-2"
         >
           <h1 className="text-4xl font-bold text-slate-900">
@@ -215,9 +216,9 @@ export default function DashboardPage() {
 
         {/* Additional Stats */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
+          initial={{ opacity: 0, x: 100 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.3, duration: 0.5 }}
           className="grid grid-cols-1 md:grid-cols-3 gap-4"
         >
           <Card>

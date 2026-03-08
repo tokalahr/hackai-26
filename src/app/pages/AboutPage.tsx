@@ -8,8 +8,9 @@ export default function AboutPage() {
       <div className="max-w-4xl mx-auto space-y-8">
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, x: 100 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
           className="space-y-2"
         >
           <div className="flex items-center gap-3">
@@ -29,9 +30,9 @@ export default function AboutPage() {
 
         {/* Mission Statement */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
+          initial={{ opacity: 0, x: 100 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.1, duration: 0.5 }}
         >
           <Card className="bg-gradient-to-r from-blue-50 to-indigo-50">
             <CardHeader>
@@ -49,9 +50,9 @@ export default function AboutPage() {
 
         {/* Features */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+          initial={{ opacity: 0, x: 100 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
         >
           <h2 className="text-2xl font-semibold text-slate-900 mb-4">
             What We Offer
@@ -87,9 +88,9 @@ export default function AboutPage() {
               return (
                 <motion.div
                   key={feature.title}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.1 * index }}
+                  initial={{ opacity: 0, x: 100 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 * index, duration: 0.5 }}
                 >
                   <Card className="h-full hover:shadow-lg transition-shadow">
                     <CardHeader>
@@ -108,9 +109,9 @@ export default function AboutPage() {
 
         {/* Current Mode */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
+          initial={{ opacity: 0, x: 100 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.3, duration: 0.5 }}
         >
           <Card>
             <CardHeader>
@@ -154,9 +155,9 @@ export default function AboutPage() {
 
         {/* Vision */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
+          initial={{ opacity: 0, x: 100 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.4, duration: 0.5 }}
         >
           <Card>
             <CardHeader>
@@ -176,9 +177,9 @@ export default function AboutPage() {
 
         {/* Stats */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
+          initial={{ opacity: 0, x: 100 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.5, duration: 0.5 }}
         >
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card>

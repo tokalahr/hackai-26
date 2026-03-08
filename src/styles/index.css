@@ -20,24 +20,64 @@ body {
 	z-index: 0;
 	pointer-events: none;
 	background:
-		radial-gradient(circle at 12% 22%, rgba(245, 128, 37, 0.2), transparent 40%),
-		radial-gradient(circle at 82% 18%, rgba(0, 168, 168, 0.18), transparent 44%),
-		radial-gradient(circle at 68% 80%, rgba(162, 89, 255, 0.16), transparent 44%),
-		linear-gradient(130deg, #0d0d0f 0%, #121824 50%, #0d0d0f 100%);
-	background-size: 180% 180%, 170% 170%, 190% 190%, 100% 100%;
-	animation: siteBgDrift 20s ease-in-out infinite alternate;
-	will-change: transform, background-position;
+		radial-gradient(circle at 12% 22%, rgba(255, 80, 80, 0.3), rgba(255, 140, 60, 0.15) 25%, transparent 42%),
+		radial-gradient(circle at 82% 18%, rgba(30, 220, 255, 0.28), rgba(20, 180, 255, 0.14) 25%, transparent 46%),
+		radial-gradient(circle at 68% 80%, rgba(220, 100, 250, 0.26), rgba(190, 70, 230, 0.13) 25%, transparent 46%),
+		radial-gradient(circle at 35% 65%, rgba(100, 240, 150, 0.24), rgba(60, 210, 110, 0.12) 30%, transparent 40%),
+		radial-gradient(circle at 88% 72%, rgba(255, 200, 50, 0.22), rgba(250, 170, 20, 0.11) 28%, transparent 38%),
+		linear-gradient(135deg, #070a18 0%, #0d1120 25%, #14192e 50%, #0d1120 75%, #070a18 100%);
+	background-size: 100%;
+	filter: saturate(1.35) brightness(1.02);
 }
 
 @keyframes siteBgDrift {
 	0% {
 		transform: translate3d(0%, 0%, 0) scale(1);
-		background-position: 0% 0%, 100% 0%, 50% 100%, 0% 0%;
+		background-position: 0% 0%, 100% 0%, 50% 100%, 20% 70%, 85% 80%, 0% 0%;
 	}
 
 	100% {
 		transform: translate3d(2%, -2%, 0) scale(1.04);
-		background-position: 30% 20%, 70% 24%, 60% 74%, 0% 0%;
+		background-position: 30% 20%, 70% 24%, 60% 74%, 40% 50%, 75% 65%, 0% 0%;
+	}
+}
+
+/* Middle content area wavy dark wave effect - only background animates */
+.container {
+	position: relative;
+}
+
+.container::before {
+	content: '';
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: -1;
+	pointer-events: none;
+	background: 
+		radial-gradient(
+			circle 42px at var(--mouse-x, 50vw) var(--mouse-y, 50vh),
+			rgba(154, 137, 255, 0.14) 0%,
+			rgba(103, 177, 255, 0.09) 45%,
+			rgba(48, 202, 255, 0.05) 70%,
+			transparent 100%
+		);
+	opacity: 0.28;
+	filter: blur(4px);
+	will-change: background;
+}
+
+@keyframes waveSweep {
+	0% {
+		transform: translateX(-50%) skewX(-5deg);
+	}
+	50% {
+		transform: translateX(50%) skewX(5deg);
+	}
+	100% {
+		transform: translateX(-50%) skewX(-5deg);
 	}
 }
 

@@ -10,6 +10,17 @@ export default function App() {
   const [path, setPath] = useState(() => window.location.pathname || "/");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+  // Track mouse movement for interactive circles
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      document.documentElement.style.setProperty('--mouse-x', `${e.clientX}px`);
+      document.documentElement.style.setProperty('--mouse-y', `${e.clientY}px`);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
   useEffect(() => {
     const onPopState = () => setPath(window.location.pathname || "/");
     window.addEventListener("popstate", onPopState);

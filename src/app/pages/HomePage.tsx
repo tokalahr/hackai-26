@@ -99,14 +99,20 @@ export default function HomePage() {
           } catch { return []; }
         })();
 
+        let userTopic = "";
+        const inputData = sessionStorage.getItem("learningAssistantInput");
+        if (inputData) { try { userTopic = JSON.parse(inputData).topic || ""; } catch { /* ignore */ } }
+
         const profile: AriaProfile = {
-          completed_courses: coursesList.length > 0 ? coursesList : ["CS 1336", "CS 1337", "CS 2305", "CS 2336"],
-          current_courses: ["CS 3345"],
-          major: "Computer Science",
+          completed_courses: coursesList,
+          current_courses: [],
+          major: userTopic || "Computer Science",
           target_roles: ["Software Engineer"],
-          interests: [],
+          interests: userTopic ? [userTopic] : [],
           inferred_skills_override: [],
           proven_skills: provenSkills,
+          topic: userTopic,
+          track: "student",
         };
         const graph = await fetchAriaGraph(profile);
         if (!cancelled && graph?.skillTree?.nodes) {

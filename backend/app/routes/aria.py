@@ -15,6 +15,8 @@ def aria_graph():
         "interests": data.get("interests", []),
         "inferred_skills_override": data.get("inferred_skills_override", []),
         "proven_skills": data.get("proven_skills", {}),
+        "topic": data.get("topic", ""),
+        "track": data.get("track", "student"),
     }
     try:
         result = generate_aria_output(profile)

@@ -394,10 +394,13 @@ export default function SkillLearnerPage() {
     }
 
     const profile: AriaProfile = {
-      completed_courses: coursesList.length > 0 ? coursesList : ["CS 1336", "CS 1337", "CS 2305", "CS 2336"],
-      current_courses: ["CS 3345"], major: "Computer Science",
+      completed_courses: coursesList,
+      current_courses: [],
+      major: topic || "Computer Science",
       target_roles: activeTrack === "professional" ? ["Software Engineer", "Full-Stack Developer"] : ["Software Engineer"],
       interests, inferred_skills_override: inferredSkills, proven_skills: provenSkills,
+      topic: topic || "",
+      track: activeTrack,
     };
     fetchAriaGraph(profile).then((data) => { if (!cancelled) setAriaData(data); }).catch((err) => { if (!cancelled) setError(err?.message || "Failed to load ARIA graph"); }).finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };

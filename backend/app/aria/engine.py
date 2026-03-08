@@ -15,6 +15,7 @@ from typing import Any
 
 from .akg import AcademicKnowledgeGraph, build_default_akg
 from .sdg import SkillDependencyGraph
+from .topic_graph import generate_topic_graph
 
 
 def _build_sdg_from_akg(akg: AcademicKnowledgeGraph) -> SkillDependencyGraph:
@@ -107,8 +108,20 @@ def generate_aria_output(profile: dict[str, Any]) -> dict[str, Any]:
       - interests: list[str]  (optional)
       - inferred_skills_override: list[str]  (optional, from recommendations)
       - proven_skills: dict[str, float]  (optional, skill_label -> score 0-1 from calibration/quiz)
+      - topic: str  (optional, user's topic of interest — generates topic-specific graph)
+      - track: str  (optional, "student" or "professional" — affects graph generation)
     """
-    akg = build_default_akg()
+    topic = profile.get("topic", "").strip()
+    track = profile.get("track", "student").strip()
+
+    # Try to generate a topic-specific graph if a topic is provided
+    akg = None
+    if topic and topic.lower() not in ("", "computer science", "cs"):
+        akg = generate_topic_graph(topic, track)
+
+    if akg is None:
+        akg = build_default_akg()
+
     sdg = _build_sdg_from_akg(akg)
 
     completed = _resolve_courses(akg, profile.get("completed_courses", []))
@@ -145,7 +158,12 @@ def generate_aria_output(profile: dict[str, Any]) -> dict[str, Any]:
     if major_id:
         seed_ids.add(major_id)
     seed_ids |= target_roles
-    subgraph_ids = akg.subgraph_within_hops(seed_ids, max_hops=3)
+
+    # If no seeds, include all nodes (e.g. fresh topic-generated graph)
+    if seed_ids:
+        subgraph_ids = akg.subgraph_within_hops(seed_ids, max_hops=3)
+    else:
+        subgraph_ids = set(akg.nodes.keys())
 
     # Determine relevant skills for roles
     role_skills: set[str] = set()

@@ -137,3 +137,75 @@ export async function fetchCalendarEventsByDate(dateISO: string) {
   const data = await apiGet<{ data?: CalendarByDate }>(`/calendar/${dateISO}`);
   return data.data;
 }
+
+// --- ARIA Graph Types ---
+
+export type AriaNodeState = "unlocked" | "in_progress" | "available_next" | "locked";
+export type AriaRelevance = "high" | "medium" | "low";
+export type AriaNodeType = "skill" | "course" | "concept" | "event" | "role" | "professor" | "program";
+
+export type AriaNode = {
+  id: string;
+  type: AriaNodeType;
+  label: string;
+  state: AriaNodeState;
+  relevance: AriaRelevance;
+  unlocksCount: number;
+  prerequisites: string[];
+  unlocks: string[];
+};
+
+export type AriaEdge = {
+  source: string;
+  target: string;
+  type: string;
+};
+
+export type AriaBlindspot = {
+  id: string;
+  type: string;
+  reason: string;
+  impact_score: number;
+  urgency_score: number;
+  next_step: string;
+};
+
+export type AriaRecommendationItem = {
+  id: string;
+  label: string;
+  score?: number;
+  reason: string;
+};
+
+export type AriaProject = {
+  title: string;
+  skills: string[];
+  reason: string;
+};
+
+export type AriaGraphResponse = {
+  skillTree: {
+    nodes: AriaNode[];
+    edges: AriaEdge[];
+  };
+  blindspots: AriaBlindspot[];
+  recommendations: {
+    nextSkills: AriaRecommendationItem[];
+    nextCourses: AriaRecommendationItem[];
+    events: AriaRecommendationItem[];
+    projects: AriaProject[];
+  };
+};
+
+export type AriaProfile = {
+  completed_courses: string[];
+  current_courses: string[];
+  major: string;
+  target_roles: string[];
+  interests: string[];
+  inferred_skills_override: string[];
+};
+
+export async function fetchAriaGraph(profile: AriaProfile): Promise<AriaGraphResponse> {
+  return apiPost<AriaGraphResponse>("/aria/graph", profile);
+}

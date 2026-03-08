@@ -27,7 +27,7 @@ export default function AboutPage() {
           { title: "Community Support", description: "Connect with peers, join study groups, and collaborate on projects." },
           { title: "Progress Tracking", description: "Monitor your achievements, courses, and certifications in one place." },
         ],
-        platformMode: "UniLearn is currently running in full-stack mode, fetching live data from the backend and database.",
+        platformMode: "Aria is currently running in full-stack mode, fetching live data from the backend and database.",
         vision: "A world where learning is accessible, personalized, and empowering for everyone.",
         stats: { pathways: 5, personalized: "100%", possibilities: "∞" },
       });
@@ -54,7 +54,7 @@ export default function AboutPage() {
             </div>
             <div>
               <h1 className="text-4xl font-bold text-slate-900">
-                About UniLearn
+                About Aria
               </h1>
               <p className="text-lg text-slate-600">
                 Your personalized learning companion

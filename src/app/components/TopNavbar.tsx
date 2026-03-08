@@ -41,7 +41,7 @@ export default function TopNavbar({ isOpen, setIsOpen }: TopNavbarProps) {
             <div className="w-10 h-10" />
             <Link to="/home" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
               <GraduationCap className="w-8 h-8 text-indigo-600" />
-              <span className="font-semibold text-xl text-slate-900">UniLearn</span>
+              <span className="font-semibold text-xl text-slate-900">Aria</span>
             </Link>
           </div>
           

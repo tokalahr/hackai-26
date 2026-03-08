@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import {
   Brain,
   ArrowLeft,
@@ -506,6 +506,17 @@ export default function SkillLearnerPage() {
           </CardContent>
         </Card>
 
+        {/* Animated content area — transitions on track switch */}
+        <AnimatePresence mode="wait">
+        <motion.div
+          key={activeTrack}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.35, ease: "easeInOut" }}
+          className="space-y-8"
+        >
+
         {loading && (<div className="flex items-center justify-center py-12"><div className="flex flex-col items-center gap-3"><svg className="animate-spin h-10 w-10 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg><p className="text-slate-600 font-medium">Building your ARIA knowledge graph...</p></div></div>)}
         {error && (<Card className="border-red-200 bg-red-50"><CardContent className="p-4"><div className="flex items-center gap-2 text-red-700"><AlertTriangle className="w-5 h-5" /><span className="font-medium">Error loading graph: {error}</span></div></CardContent></Card>)}
 
@@ -599,6 +610,9 @@ export default function SkillLearnerPage() {
             {!selectedFocus && (<Card><CardHeader><CardTitle>Start Quiz</CardTitle><CardDescription>Select a focus above to begin adaptive, topic-specific MCQs.</CardDescription></CardHeader></Card>)}
           </>
         )}
+
+        </motion.div>
+        </AnimatePresence>
 
         {/* Back button */}
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>

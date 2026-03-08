@@ -42,11 +42,11 @@ export default function EntryPage() {
           </div>
 
           <h1 className="text-5xl md:text-6xl font-bold text-white mb-4">
-            Welcome to UniLearn
+            Welcome to Aria
           </h1>
           
           <p className="text-xl md:text-2xl text-white/90 mb-8">
-            Your personalized learning platform for academic and professional growth
+            Your academic intelligence engine for personalized learning
           </p>
 
           <motion.div

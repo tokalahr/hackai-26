@@ -2,7 +2,7 @@
 
 ## Cursor Cloud specific instructions
 
-UniLearn is a student learning tool with a React+Vite frontend (port 5173) and Flask backend (port 5004). See `README.md` for standard commands.
+Aria is an academic intelligence engine with a React+Vite frontend (port 5173) and Flask backend (port 5004). See `README.md` for standard commands.
 
 ### Services
 

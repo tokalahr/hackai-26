@@ -24,6 +24,15 @@ interface LearningAssistantInput {
   background: string;
 }
 
+type StudentRecommendationCache = {
+  fingerprint: string;
+  assistantAnswer: string;
+  liveSectionCount: number | null;
+  nextSteps: StudentStep[];
+  focusAreas: string[];
+  resources: StudentResource[];
+};
+
 type StudentStep = {
   step: number;
   title: string;
@@ -36,6 +45,18 @@ type StudentResource = {
   type: string;
   description: string;
 };
+
+const STUDENT_CACHE_KEY = "student-recommendations-cache";
+
+function getFingerprint(input: LearningAssistantInput): string {
+  return JSON.stringify({
+    userType: input.userType,
+    name: input.name,
+    topic: input.topic,
+    currentLevel: input.currentLevel,
+    background: input.background,
+  });
+}
 
 function parseJsonArray<T>(text: string): T[] | null {
   try {
@@ -90,15 +111,42 @@ export default function StudentRecommendationsPage() {
     }
 
     let active = true;
+    const fingerprint = getFingerprint(inputData);
+
+    try {
+      const cachedRaw = sessionStorage.getItem(STUDENT_CACHE_KEY);
+      if (cachedRaw) {
+        const cached = JSON.parse(cachedRaw) as StudentRecommendationCache;
+        if (cached.fingerprint === fingerprint) {
+          setAssistantAnswer(cached.assistantAnswer || "");
+          setLiveSectionCount(cached.liveSectionCount ?? null);
+          setNextSteps(Array.isArray(cached.nextSteps) ? cached.nextSteps : []);
+          setFocusAreas(Array.isArray(cached.focusAreas) ? cached.focusAreas : []);
+          setResources(Array.isArray(cached.resources) ? cached.resources : []);
+          setLoading(false);
+          return;
+        }
+      }
+    } catch {
+      // Ignore cache parse issues and regenerate.
+    }
 
     const loadLiveRecommendations = async () => {
       setLoading(true);
+
+      let latestAssistantAnswer = "";
+      let latestLiveSectionCount: number | null = null;
+      let latestNextSteps: StudentStep[] = [];
+      let latestFocusAreas: string[] = [];
+      let latestResources: StudentResource[] = [];
+
       try {
         const answer = await askBackendAssistant(
           `Create concise student recommendations for topic ${inputData.topic}, level ${inputData.currentLevel}, background ${inputData.background}.`,
         );
         if (active && answer) {
           setAssistantAnswer(answer);
+          latestAssistantAnswer = answer;
         }
 
         const stepsRaw = await askBackendAssistant(
@@ -106,14 +154,14 @@ export default function StudentRecommendationsPage() {
         );
         const parsedSteps = parseJsonArray<{ title?: string; description?: string; duration?: string }>(stepsRaw);
         if (active && parsedSteps && parsedSteps.length > 0) {
-          setNextSteps(
-            parsedSteps.slice(0, 4).map((step, index) => ({
-              step: index + 1,
-              title: step.title || `Step ${index + 1}`,
-              description: step.description || "Continue progressing through the learning path.",
-              duration: step.duration || "4-6 weeks",
-            })),
-          );
+          const mappedSteps = parsedSteps.slice(0, 4).map((step, index) => ({
+            step: index + 1,
+            title: step.title || `Step ${index + 1}`,
+            description: step.description || "Continue progressing through the learning path.",
+            duration: step.duration || "4-6 weeks",
+          }));
+          setNextSteps(mappedSteps);
+          latestNextSteps = mappedSteps;
         }
 
         const focusRaw = await askBackendAssistant(
@@ -121,7 +169,9 @@ export default function StudentRecommendationsPage() {
         );
         const parsedFocus = parseJsonArray<string>(focusRaw);
         if (active && parsedFocus && parsedFocus.length > 0) {
-          setFocusAreas(parsedFocus.slice(0, 6).map((item) => String(item)));
+          const mappedFocus = parsedFocus.slice(0, 6).map((item) => String(item));
+          setFocusAreas(mappedFocus);
+          latestFocusAreas = mappedFocus;
         }
 
         const resourcesRaw = await askBackendAssistant(
@@ -129,13 +179,13 @@ export default function StudentRecommendationsPage() {
         );
         const parsedResources = parseJsonArray<{ title?: string; type?: string; description?: string }>(resourcesRaw);
         if (active && parsedResources && parsedResources.length > 0) {
-          setResources(
-            parsedResources.slice(0, 4).map((resource, index) => ({
-              title: resource.title || `Learning Resource ${index + 1}`,
-              type: resource.type || "Resource",
-              description: resource.description || "Recommended supporting material.",
-            })),
-          );
+          const mappedResources = parsedResources.slice(0, 4).map((resource, index) => ({
+            title: resource.title || `Learning Resource ${index + 1}`,
+            type: resource.type || "Resource",
+            description: resource.description || "Recommended supporting material.",
+          }));
+          setResources(mappedResources);
+          latestResources = mappedResources;
         }
 
         const parsed = parseCourseFromText(inputData.topic);
@@ -146,10 +196,22 @@ export default function StudentRecommendationsPage() {
         const sections = await fetchCourseTrends(parsed.subjectPrefix, parsed.courseNumber);
         if (active) {
           setLiveSectionCount(sections.length);
+          latestLiveSectionCount = sections.length;
         }
       } catch {
         // Keep static recommendation content when backend data is unavailable.
       } finally {
+        if (active) {
+          const payload: StudentRecommendationCache = {
+            fingerprint,
+            assistantAnswer: latestAssistantAnswer || assistantAnswer,
+            liveSectionCount: latestLiveSectionCount,
+            nextSteps: latestNextSteps.length > 0 ? latestNextSteps : nextSteps,
+            focusAreas: latestFocusAreas.length > 0 ? latestFocusAreas : focusAreas,
+            resources: latestResources.length > 0 ? latestResources : resources,
+          };
+          sessionStorage.setItem(STUDENT_CACHE_KEY, JSON.stringify(payload));
+        }
         setLoading(false);
       }
     };

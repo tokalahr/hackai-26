@@ -22,8 +22,30 @@ export type NebulaSection = {
   professor_details?: Array<{ first_name?: string; last_name?: string }>;
 };
 
+export type CalendarEvent = {
+  summary?: string;
+  start_time?: string;
+  end_time?: string;
+  location?: string;
+};
+
+export type CalendarRoom = {
+  room?: string;
+  events?: CalendarEvent[];
+};
+
+export type CalendarBuilding = {
+  building?: string;
+  rooms?: CalendarRoom[];
+};
+
+export type CalendarByDate = {
+  date?: string;
+  buildings?: CalendarBuilding[];
+};
+
 const viteEnv = (import.meta as unknown as { env?: Record<string, string> }).env;
-const API_BASE = (viteEnv?.VITE_API_BASE_URL || "http://localhost:5000").replace(/\/$/, "");
+const API_BASE = (viteEnv?.VITE_API_BASE_URL || "http://localhost:5004").replace(/\/$/, "");
 
 async function apiGet<T>(path: string, params?: Record<string, string | number | undefined>): Promise<T> {
   const url = new URL(`${API_BASE}${path}`);
@@ -109,4 +131,9 @@ export async function fetchDashboardOverview() {
       communitySupport: number;
     };
   }>("/dashboard/overview");
+}
+
+export async function fetchCalendarEventsByDate(dateISO: string) {
+  const data = await apiGet<{ data?: CalendarByDate }>(`/calendar/${dateISO}`);
+  return data.data;
 }

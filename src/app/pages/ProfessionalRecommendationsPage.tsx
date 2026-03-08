@@ -25,6 +25,20 @@ interface LearningAssistantInput {
   background: string;
 }
 
+type ProfessionalRecommendationCache = {
+  fingerprint: string;
+  assistantAnswer: string;
+  professorNames: string[];
+  roadmapSteps: RoadmapStep[];
+  competencies: Competency[];
+  scenarios: Scenario[];
+  resources: ProfessionalResource[];
+  roadmapRaw: string | null;
+  competencyRaw: string | null;
+  scenarioRaw: string | null;
+  resourcesRaw: string | null;
+};
+
 type RoadmapStep = {
   phase: string;
   title: string;
@@ -49,6 +63,18 @@ type ProfessionalResource = {
   type: string;
   description: string;
 };
+
+const PROFESSIONAL_CACHE_KEY = "professional-recommendations-cache";
+
+function getFingerprint(input: LearningAssistantInput): string {
+  return JSON.stringify({
+    userType: input.userType,
+    name: input.name,
+    topic: input.topic,
+    currentLevel: input.currentLevel,
+    background: input.background,
+  });
+}
 
 function parseJsonArray<T>(text: string): T[] | null {
   try {
@@ -108,9 +134,45 @@ export default function ProfessionalRecommendationsPage() {
     }
 
     let active = true;
+    const fingerprint = getFingerprint(inputData);
+
+    try {
+      const cachedRaw = sessionStorage.getItem(PROFESSIONAL_CACHE_KEY);
+      if (cachedRaw) {
+        const cached = JSON.parse(cachedRaw) as ProfessionalRecommendationCache;
+        if (cached.fingerprint === fingerprint) {
+          setAssistantAnswer(cached.assistantAnswer || "");
+          setProfessorNames(Array.isArray(cached.professorNames) ? cached.professorNames : []);
+          setRoadmapSteps(Array.isArray(cached.roadmapSteps) ? cached.roadmapSteps : []);
+          setCompetencies(Array.isArray(cached.competencies) ? cached.competencies : []);
+          setScenarios(Array.isArray(cached.scenarios) ? cached.scenarios : []);
+          setResources(Array.isArray(cached.resources) ? cached.resources : []);
+          setRoadmapRaw(cached.roadmapRaw ?? null);
+          setCompetencyRaw(cached.competencyRaw ?? null);
+          setScenarioRaw(cached.scenarioRaw ?? null);
+          setResourcesRaw(cached.resourcesRaw ?? null);
+          setLoading(false);
+          return;
+        }
+      }
+    } catch {
+      // Ignore cache parse issues and regenerate.
+    }
 
     const loadLiveRecommendations = async () => {
       setLoading(true);
+
+      let latestAssistantAnswer = "";
+      let latestProfessorNames: string[] = [];
+      let latestRoadmapSteps: RoadmapStep[] = [];
+      let latestCompetencies: Competency[] = [];
+      let latestScenarios: Scenario[] = [];
+      let latestResources: ProfessionalResource[] = [];
+      let latestRoadmapRaw: string | null = null;
+      let latestCompetencyRaw: string | null = null;
+      let latestScenarioRaw: string | null = null;
+      let latestResourcesRaw: string | null = null;
+
       try {
         // Use more specific, role-focused prompts for each section
         const answer = await askBackendAssistant(
@@ -118,12 +180,14 @@ export default function ProfessionalRecommendationsPage() {
         );
         if (active && answer) {
           setAssistantAnswer(answer);
+          latestAssistantAnswer = answer;
         }
 
         const roadmapRawResponse = await askBackendAssistant(
           `You are a senior tech mentor. Return only a JSON array of 4 objects with keys {"title","description","timeline","impact"}. Each object is a top roadmap step for career advancement in ${inputData.topic} for a professional. Be specific and practical. Respond ONLY with a valid JSON array.`
         );
         setRoadmapRaw(roadmapRawResponse);
+        latestRoadmapRaw = roadmapRawResponse;
         const parsedRoadmap = parseJsonArray<{
           title?: string;
           description?: string;
@@ -131,73 +195,92 @@ export default function ProfessionalRecommendationsPage() {
           impact?: string;
         }>(roadmapRawResponse);
         if (active && parsedRoadmap && parsedRoadmap.length > 0) {
-          setRoadmapSteps(
-            parsedRoadmap.slice(0, 4).map((step, index) => ({
-              phase: `Phase ${index + 1}`,
-              title: step.title || `Milestone ${index + 1}`,
-              description: step.description || "Advance through this stage with measurable outcomes.",
-              timeline: step.timeline || "2-4 months",
-              impact: step.impact || "High",
-            })),
-          );
+          const mappedRoadmap = parsedRoadmap.slice(0, 4).map((step, index) => ({
+            phase: `Phase ${index + 1}`,
+            title: step.title || `Milestone ${index + 1}`,
+            description: step.description || "Advance through this stage with measurable outcomes.",
+            timeline: step.timeline || "2-4 months",
+            impact: step.impact || "High",
+          }));
+          setRoadmapSteps(mappedRoadmap);
+          latestRoadmapSteps = mappedRoadmap;
         }
 
         const competencyRawResponse = await askBackendAssistant(
           `You are a tech hiring manager. Return only a JSON array of 6 objects {"skill","level"} (level 50-100) for the most in-demand professional competencies in ${inputData.topic}. Use real-world, up-to-date skills. Respond ONLY with a valid JSON array.`
         );
         setCompetencyRaw(competencyRawResponse);
+        latestCompetencyRaw = competencyRawResponse;
         const parsedCompetencies = parseJsonArray<{ skill?: string; level?: number }>(competencyRawResponse);
         if (active && parsedCompetencies && parsedCompetencies.length > 0) {
-          setCompetencies(
-            parsedCompetencies.slice(0, 6).map((entry, index) => ({
-              skill: entry.skill || `Core Skill ${index + 1}`,
-              level: Math.max(50, Math.min(100, Number(entry.level) || 75)),
-            })),
-          );
+          const mappedCompetencies = parsedCompetencies.slice(0, 6).map((entry, index) => ({
+            skill: entry.skill || `Core Skill ${index + 1}`,
+            level: Math.max(50, Math.min(100, Number(entry.level) || 75)),
+          }));
+          setCompetencies(mappedCompetencies);
+          latestCompetencies = mappedCompetencies;
         }
 
         const scenarioRawResponse = await askBackendAssistant(
           `You are a senior engineering manager. Return only a JSON array of 4 objects {"scenario","description","impact"} for the most relevant workplace application scenarios in ${inputData.topic}. Use real, modern examples. Respond ONLY with a valid JSON array.`
         );
         setScenarioRaw(scenarioRawResponse);
+        latestScenarioRaw = scenarioRawResponse;
         const parsedScenarios = parseJsonArray<{ scenario?: string; description?: string; impact?: string }>(scenarioRawResponse);
         if (active && parsedScenarios && parsedScenarios.length > 0) {
-          setScenarios(
-            parsedScenarios.slice(0, 4).map((scenario, index) => ({
-              scenario: scenario.scenario || `Use Case ${index + 1}`,
-              description: scenario.description || "Apply this capability to a practical initiative.",
-              impact: scenario.impact || "Business impact",
-            })),
-          );
+          const mappedScenarios = parsedScenarios.slice(0, 4).map((scenario, index) => ({
+            scenario: scenario.scenario || `Use Case ${index + 1}`,
+            description: scenario.description || "Apply this capability to a practical initiative.",
+            impact: scenario.impact || "Business impact",
+          }));
+          setScenarios(mappedScenarios);
+          latestScenarios = mappedScenarios;
         }
 
         const resourcesRawResponse = await askBackendAssistant(
           `You are a professional development advisor. Return only a JSON array of 4 objects {"title","type","description"} for the best, most current professional development resources in ${inputData.topic}. Include top-rated books, courses, or sites. Respond ONLY with a valid JSON array.`
         );
         setResourcesRaw(resourcesRawResponse);
+        latestResourcesRaw = resourcesRawResponse;
         const parsedResources = parseJsonArray<{ title?: string; type?: string; description?: string }>(resourcesRawResponse);
         if (active && parsedResources && parsedResources.length > 0) {
-          setResources(
-            parsedResources.slice(0, 4).map((resource, index) => ({
-              title: resource.title || `Resource ${index + 1}`,
-              type: resource.type || "Professional",
-              description: resource.description || "Recommended career development material.",
-            })),
-          );
+          const mappedResources = parsedResources.slice(0, 4).map((resource, index) => ({
+            title: resource.title || `Resource ${index + 1}`,
+            type: resource.type || "Professional",
+            description: resource.description || "Recommended career development material.",
+          }));
+          setResources(mappedResources);
+          latestResources = mappedResources;
         }
 
         const professors = await fetchProfessors({ offset: 0 });
         if (active && professors.length > 0) {
-          setProfessorNames(
-            professors
-              .slice(0, 3)
-              .map((prof) => `${prof.first_name ?? ""} ${prof.last_name ?? ""}`.trim())
-              .filter(Boolean),
-          );
+          const names = professors
+            .slice(0, 3)
+            .map((prof) => `${prof.first_name ?? ""} ${prof.last_name ?? ""}`.trim())
+            .filter(Boolean);
+          setProfessorNames(names);
+          latestProfessorNames = names;
         }
       } catch {
         // Keep static recommendation content when backend data is unavailable.
       } finally {
+        if (active) {
+          const payload: ProfessionalRecommendationCache = {
+            fingerprint,
+            assistantAnswer: latestAssistantAnswer || assistantAnswer,
+            professorNames: latestProfessorNames.length > 0 ? latestProfessorNames : professorNames,
+            roadmapSteps: latestRoadmapSteps.length > 0 ? latestRoadmapSteps : roadmapSteps,
+            competencies: latestCompetencies.length > 0 ? latestCompetencies : competencies,
+            scenarios: latestScenarios.length > 0 ? latestScenarios : scenarios,
+            resources: latestResources.length > 0 ? latestResources : resources,
+            roadmapRaw: latestRoadmapRaw ?? roadmapRaw,
+            competencyRaw: latestCompetencyRaw ?? competencyRaw,
+            scenarioRaw: latestScenarioRaw ?? scenarioRaw,
+            resourcesRaw: latestResourcesRaw ?? resourcesRaw,
+          };
+          sessionStorage.setItem(PROFESSIONAL_CACHE_KEY, JSON.stringify(payload));
+        }
         setLoading(false);
       }
     };

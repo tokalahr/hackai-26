@@ -3,7 +3,9 @@ import { motion } from "motion/react";
 import { Calendar, Clock, MapPin, BookOpen, Users, Award } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import { Badge } from "../components/ui/badge";
-import { fetchCourses, fetchCourseTrends } from "../services/backend-api";
+import { Input } from "../components/ui/input";
+import { Button } from "../components/ui/button";
+import { fetchCalendarEventsByDate } from "../services/backend-api";
 
 type EventItem = {
   id: number;
@@ -16,72 +18,127 @@ type EventItem = {
 };
 
 type CourseItem = {
-  id: number;
-  title: string;
-  courseLabel: string;
+  id: string;
+  code: string;
+  note: string;
 };
+
+const STORAGE_KEY = "dashboard-manual-courses";
+
+function formatDateISO(date: Date): string {
+  return date.toISOString().slice(0, 10);
+}
+
+function getWeekDates(startFrom: Date): string[] {
+  const dayOfWeek = startFrom.getDay();
+  const remainingDays = 7 - dayOfWeek;
+  return Array.from({ length: remainingDays }, (_, i) => {
+    const d = new Date(startFrom);
+    d.setDate(startFrom.getDate() + i);
+    return formatDateISO(d);
+  });
+}
 
 export default function DashboardPage() {
   const [events, setEvents] = useState<EventItem[]>([]);
   const [courses, setCourses] = useState<CourseItem[]>([]);
-  const [isLoadingLiveData, setIsLoadingLiveData] = useState(true);
+  const [courseCode, setCourseCode] = useState("");
+  const [courseNote, setCourseNote] = useState("");
+  const [isLoadingEvents, setIsLoadingEvents] = useState(true);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) {
+        return;
+      }
+      const parsed = JSON.parse(saved) as CourseItem[];
+      if (Array.isArray(parsed)) {
+        setCourses(parsed);
+      }
+    } catch {
+      setCourses([]);
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(courses));
+  }, [courses]);
 
   useEffect(() => {
     let active = true;
 
-    const loadLiveData = async () => {
+    const loadCurrentWeekEvents = async () => {
       try {
-        const liveCourses = await fetchCourses({ offset: 0 });
-        if (!active || liveCourses.length === 0) {
+        const dates = getWeekDates(new Date());
+        const dailyResults = await Promise.all(dates.map((date) => fetchCalendarEventsByDate(date)));
+        if (!active) {
           return;
         }
 
-        const mappedCourses = liveCourses.slice(0, 3).map((course, index) => ({
-          id: index + 1,
-          title:
-            `${course.subject_prefix ?? ""} ${course.course_number ?? ""}`.trim() || `Course ${index + 1}`,
-          courseLabel: course.title || course.description || "Course details",
-        }));
-        setCourses(mappedCourses);
+        const mappedEvents: EventItem[] = [];
+        let idCounter = 1;
 
-        const first = liveCourses[0];
-        if (!first?.subject_prefix || !first?.course_number) {
-          return;
+        for (const day of dailyResults) {
+          const dateLabel = day?.date || "This week";
+          for (const building of day?.buildings ?? []) {
+            for (const room of building.rooms ?? []) {
+              for (const event of room.events ?? []) {
+                if (mappedEvents.length >= 8) {
+                  break;
+                }
+                mappedEvents.push({
+                  id: idCounter,
+                  title: event.summary || "Campus Event",
+                  date: dateLabel,
+                  time: event.start_time || event.end_time || "TBA",
+                  location: `${building.building || "Campus"} ${room.room || ""}`.trim(),
+                  type: "Campus Event",
+                  color: "bg-indigo-500",
+                });
+                idCounter += 1;
+              }
+            }
+          }
         }
 
-        const trendSections = await fetchCourseTrends(first.subject_prefix, first.course_number);
-        if (!active || trendSections.length === 0) {
-          return;
-        }
-
-        const mappedEvents = trendSections.slice(0, 5).map((section, index) => {
-          const meeting = section.meetings?.[0];
-          return {
-            id: index + 1,
-            title: `${first.subject_prefix} ${first.course_number} Section ${section.section_number ?? "N/A"}`,
-            date: meeting?.start_date || "Upcoming",
-            time: meeting?.start_time || "TBA",
-            location: `${meeting?.location?.building || "Campus"} ${meeting?.location?.room || "TBD"}`,
-            type: "Nebula Trend",
-            color: "bg-indigo-500",
-          };
-        });
         setEvents(mappedEvents);
       } catch {
-        setCourses([]);
         setEvents([]);
       } finally {
         if (active) {
-          setIsLoadingLiveData(false);
+          setIsLoadingEvents(false);
         }
       }
     };
 
-    void loadLiveData();
+    void loadCurrentWeekEvents();
     return () => {
       active = false;
     };
   }, []);
+
+  const addCourse = () => {
+    const trimmedCode = courseCode.trim().toUpperCase();
+    const trimmedNote = courseNote.trim();
+    if (!trimmedCode) {
+      return;
+    }
+
+    const next: CourseItem = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      code: trimmedCode,
+      note: trimmedNote || "No notes added yet.",
+    };
+
+    setCourses((prev) => [next, ...prev]);
+    setCourseCode("");
+    setCourseNote("");
+  };
+
+  const removeCourse = (id: string) => {
+    setCourses((prev) => prev.filter((course) => course.id !== id));
+  };
 
   return (
     <div className="min-h-screen p-8">
@@ -120,7 +177,10 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {!isLoadingLiveData && events.length === 0 && (
+                  {isLoadingEvents && (
+                    <p className="text-sm text-slate-500">Loading current week events...</p>
+                  )}
+                  {!isLoadingEvents && events.length === 0 && (
                     <p className="text-sm text-slate-500">No live events available.</p>
                   )}
                   {events.map((event, index) => (
@@ -171,19 +231,29 @@ export default function DashboardPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <BookOpen className="w-5 h-5 text-indigo-600" />
-                  My Assignments
+                  My Courses
                 </CardTitle>
                 <CardDescription>
-                  Current assignments and their progress
+                  Add the courses you are taking this term
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {isLoadingLiveData && (
-                  <p className="text-sm text-slate-500 mb-3">Loading live Nebula data...</p>
-                )}
+                <div className="grid grid-cols-1 gap-2 mb-4">
+                  <Input
+                    value={courseCode}
+                    onChange={(event) => setCourseCode(event.target.value)}
+                    placeholder="Course code (example: CS 3377)"
+                  />
+                  <Input
+                    value={courseNote}
+                    onChange={(event) => setCourseNote(event.target.value)}
+                    placeholder="Optional note (example: Tue/Thu 1pm)"
+                  />
+                  <Button type="button" onClick={addCourse}>Add Course</Button>
+                </div>
                 <div className="space-y-4">
-                  {!isLoadingLiveData && courses.length === 0 && (
-                    <p className="text-sm text-slate-500">No live course data available.</p>
+                  {courses.length === 0 && (
+                    <p className="text-sm text-slate-500">No courses added yet.</p>
                   )}
                   {courses.map((course, index) => (
                     <motion.div
@@ -196,11 +266,14 @@ export default function DashboardPage() {
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <h3 className="font-semibold text-slate-900 mb-2">
-                            {course.title}
+                            {course.code}
                           </h3>
-                          <p className="text-sm text-slate-600">{course.courseLabel}</p>
+                          <p className="text-sm text-slate-600">{course.note}</p>
                         </div>
-                        <div className="flex-shrink-0">
+                        <div className="flex-shrink-0 flex items-center gap-2">
+                          <Button type="button" variant="ghost" size="sm" onClick={() => removeCourse(course.id)}>
+                            Remove
+                          </Button>
                           <Award className="w-5 h-5 text-slate-400" />
                         </div>
                       </div>

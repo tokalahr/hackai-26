@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "motion/react";
 import { Sparkles, ArrowRight } from "lucide-react";
@@ -26,6 +26,27 @@ export default function LearningAssistantPage() {
     currentLevel: "",
     background: "",
   });
+
+  useEffect(() => {
+    const savedData = sessionStorage.getItem("learningAssistantInput");
+    if (!savedData) {
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(savedData) as Partial<LearningAssistantInput>;
+      const userType = parsed.userType === "professional" ? "professional" : "student";
+      setFormData({
+        userType,
+        name: typeof parsed.name === "string" ? parsed.name : "",
+        topic: typeof parsed.topic === "string" ? parsed.topic : "",
+        currentLevel: typeof parsed.currentLevel === "string" ? parsed.currentLevel : "",
+        background: typeof parsed.background === "string" ? parsed.background : "",
+      });
+    } catch {
+      // Ignore malformed saved values and keep defaults.
+    }
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

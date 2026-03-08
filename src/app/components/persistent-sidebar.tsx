@@ -8,7 +8,7 @@ type PersistentSidebarProps = {
 };
 
 const navItems = [
-  { label: "Home", path: "/" },
+  { label: "Home", path: "/home" },
   { label: "Campus", path: "/dashboard" },
   { label: "Learning Assistant", path: "/learning-assistant" },
   { label: "Student Recommendations", path: "/student-recommendations" },

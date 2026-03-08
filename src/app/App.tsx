@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { Navigation } from "./components/navigation";
 import { Footer } from "./components/footer";
 import { PersistentSidebar } from "./components/persistent-sidebar";
+import { EntryPage } from "./pages/entry-page";
 import { HomePage } from "./pages/home-page";
 import { DashboardPage } from "./pages/dashboard-page";
 import { AboutPage } from "./pages/about-page";
@@ -32,8 +33,11 @@ export default function App() {
     setIsSidebarOpen(false);
   }, [path]);
 
+  const isEntryScreen = path === "/";
+
   const content = useMemo(() => {
-    if (path === "/") return <HomePage onNavigate={navigate} />;
+    if (path === "/") return <EntryPage onNavigate={navigate} />;
+    if (path === "/home") return <HomePage onNavigate={navigate} />;
     if (path === "/dashboard" || path === "/learning-assistant") {
       return <DashboardPage activePath={path} onNavigate={navigate} />;
     }
@@ -52,7 +56,7 @@ export default function App() {
           <h1 className="text-5xl font-bold text-white">Page Not Found</h1>
           <p className="text-gray-400">This placeholder page has not been created yet.</p>
           <button
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/home")}
             className="px-6 py-3 rounded-xl font-semibold text-white bg-gradient-to-r from-[#F58025] to-[#ff9447]"
           >
             Back to Home
@@ -64,20 +68,30 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#0D0D0F] text-white dark">
-      <Navigation
-        currentPath={path}
-        onNavigate={navigate}
-        onOpenSidebar={() => setIsSidebarOpen(true)}
-      />
+      {!isEntryScreen && (
+        <Navigation
+          currentPath={path}
+          onNavigate={navigate}
+          onOpenSidebar={() => setIsSidebarOpen(true)}
+        />
+      )}
 
-      <PersistentSidebar
-        currentPath={path}
-        isOpen={isSidebarOpen}
-        onClose={() => setIsSidebarOpen(false)}
-        onNavigate={navigate}
-      />
+      {!isEntryScreen && (
+        <PersistentSidebar
+          currentPath={path}
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+          onNavigate={navigate}
+        />
+      )}
 
-      <div className="relative z-10 container mx-auto max-w-7xl px-6 pt-28 pb-10">
+      <div
+        className={
+          isEntryScreen
+            ? "relative z-10"
+            : "relative z-10 container mx-auto max-w-7xl px-6 pt-28 pb-10"
+        }
+      >
         <AnimatePresence mode="wait">
           <motion.main
             key={path}
@@ -89,7 +103,7 @@ export default function App() {
             {content}
           </motion.main>
         </AnimatePresence>
-        <Footer onNavigate={navigate} />
+        {!isEntryScreen && <Footer onNavigate={navigate} />}
       </div>
     </div>
   );

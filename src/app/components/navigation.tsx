@@ -12,7 +12,7 @@ export function Navigation({ currentPath, onNavigate, onOpenSidebar }: Navigatio
   const [isOpen, setIsOpen] = useState(false);
 
   const navItems = [
-    { name: "Home", href: "/" },
+    { name: "Home", href: "/home" },
     { name: "Dashboard", href: "/dashboard" },
     { name: "About", href: "/about" },
   ];
@@ -39,7 +39,7 @@ export function Navigation({ currentPath, onNavigate, onOpenSidebar }: Navigatio
 
             {/* Logo */}
             <motion.button
-              onClick={() => onNavigate("/")}
+              onClick={() => onNavigate("/home")}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               className="flex items-center gap-2"

@@ -1,11 +1,23 @@
 import { motion } from "motion/react";
-import { Sparkles, Zap } from "lucide-react";
 
 type HeroSectionProps = {
   onNavigate: (path: string) => void;
 };
 
-export function HeroSection({ onNavigate }: HeroSectionProps) {
+export function HeroSection({ onNavigate: _onNavigate }: HeroSectionProps) {
+  let welcomeName = "<name>";
+  try {
+    const raw = sessionStorage.getItem("learningAssistantInput");
+    if (raw) {
+      const parsed = JSON.parse(raw) as { name?: string };
+      if (parsed.name && parsed.name.trim()) {
+        welcomeName = parsed.name.trim();
+      }
+    }
+  } catch {
+    // Keep fallback placeholder when session storage is unavailable.
+  }
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Gradient Background */}
@@ -22,79 +34,18 @@ export function HeroSection({ onNavigate }: HeroSectionProps) {
       <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px]" />
 
       <div className="relative z-10 container mx-auto px-6 py-20">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          {/* Left Content */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-left space-y-6"
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#F58025]/10 border border-[#F58025]/30"
-            >
-              <Sparkles className="w-4 h-4 text-[#F58025]" />
-              <span className="text-sm text-[#F58025]">University + Learning Assistant</span>
-            </motion.div>
-
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="text-5xl md:text-7xl font-bold leading-tight"
-            >
-              <span className="bg-gradient-to-r from-white via-white to-gray-400 bg-clip-text text-transparent">
-                Build Smarter.
-              </span>
-              <br />
-              <span className="bg-gradient-to-r from-[#F58025] via-[#00A8A8] to-[#A259FF] bg-clip-text text-transparent">
-                Learn Smarter.
-              </span>
-            </motion.h1>
-
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="text-xl text-gray-400 max-w-lg"
-            >
-              Explore campus events and courses, then generate personalized learning next steps with reasons.
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="flex flex-wrap gap-4 pt-4"
-            >
-              <button
-                onClick={() => onNavigate("/dashboard")}
-                className="px-8 py-4 bg-gradient-to-r from-[#F58025] to-[#ff9447] rounded-xl font-semibold text-white hover:shadow-lg hover:shadow-[#F58025]/50 transition-all duration-300 transform hover:scale-105"
-              >
-                Open Dashboard
-              </button>
-              <button
-                onClick={() => onNavigate("/about")}
-                className="px-8 py-4 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl font-semibold text-white hover:bg-white/10 transition-all duration-300 flex items-center gap-2"
-              >
-                <Zap className="w-5 h-5" />
-                Learn More
-              </button>
-            </motion.div>
-
-          </motion.div>
-
-          {/* Right - Dashboard Preview */}
+        <div className="max-w-5xl mx-auto">
           <motion.div
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4, duration: 0.8 }}
-            className="relative"
+            className="relative lg:scale-[1.08]"
           >
             <div className="relative">
+              <p className="text-3xl md:text-5xl font-extrabold mb-5 px-1 flowing-gradient-text">
+                Welcome, {welcomeName}
+              </p>
+
               {/* Glassmorphism Card */}
               <div className="relative bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-2xl">
                 {/* Mock Dashboard */}
@@ -157,17 +108,6 @@ export function HeroSection({ onNavigate }: HeroSectionProps) {
                 </div>
               </div>
 
-              {/* Floating Elements */}
-              <motion.div
-                animate={{ y: [0, -10, 0] }}
-                transition={{ repeat: Infinity, duration: 3 }}
-                className="absolute -top-4 -right-4 w-16 h-16 bg-gradient-to-br from-[#A259FF] to-[#F58025] rounded-2xl shadow-lg shadow-[#A259FF]/50"
-              />
-              <motion.div
-                animate={{ y: [0, 10, 0] }}
-                transition={{ repeat: Infinity, duration: 4, delay: 0.5 }}
-                className="absolute -bottom-4 -left-4 w-20 h-20 bg-gradient-to-br from-[#00A8A8] to-[#A259FF] rounded-2xl shadow-lg shadow-[#00A8A8]/50"
-              />
             </div>
           </motion.div>
         </div>

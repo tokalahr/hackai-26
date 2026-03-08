@@ -193,3 +193,24 @@
     line-height: 1.5;
   }
 }
+
+@keyframes flowing-gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.flowing-gradient-text {
+  background-image: linear-gradient(90deg, #F58025, #00A8A8, #A259FF, #F58025);
+  background-size: 240% 240%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: flowing-gradient 5s ease-in-out infinite;
+}

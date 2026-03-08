@@ -6,7 +6,7 @@ type FooterProps = {
 
 export function Footer({ onNavigate }: FooterProps) {
   const links = [
-    { name: "Home", href: "/" },
+    { name: "Home", href: "/home" },
     { name: "Dashboard", href: "/dashboard" },
     { name: "About", href: "/about" },
   ];
